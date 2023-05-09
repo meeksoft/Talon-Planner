@@ -10,8 +10,14 @@
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
+    "dev:pwa": "quasar dev -m pwa",
+    "inspect": "quasar inspect",
     "build": "quasar build",
-    "build:pwa": "quasar build -m pwa"
+    "build:debug": "quasar build -d",
+    "build:pwa": "quasar build -m pwa",
+    "build:pwa:debug": "quasar build -m pwa -d",
+    "serve": "quasar serve -H localhost -p 3223 dist/spa",
+    "serve:pwa": "quasar serve -H localhost -p 3223 dist/pwa"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
