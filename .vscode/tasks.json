@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "command": "quasar serve -H localhost -p 3223 --https dist/spa",
+      "group": "test",
+      "problemMatcher": [],
+      "label": "Quasar Serve",
+      "detail": "quasar serve spa"
+    }
+  ]
+}

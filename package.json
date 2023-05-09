@@ -15,9 +15,7 @@
     "build": "quasar build",
     "build:debug": "quasar build -d",
     "build:pwa": "quasar build -m pwa",
-    "build:pwa:debug": "quasar build -m pwa -d",
-    "serve": "quasar serve -H localhost -p 3223 dist/spa",
-    "serve:pwa": "quasar serve -H localhost -p 3223 dist/pwa"
+    "build:pwa:debug": "quasar build -m pwa -d"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",

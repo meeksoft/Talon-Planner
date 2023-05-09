@@ -28,3 +28,19 @@ _Warnnig_ You may notice in some dev environments, that Workbox will not load yo
 
 - `dev:pwa`
 - `build:pwa`
+
+## LOCAL Debug
+
+Two step process in VSCode. This is allow us to have break points:
+
+1. Run `quasar dev`: This should default and run localhost:9000. A browser will open, you can close it.
+2. Run VSCode's debugger setting `Quasar App: chrome`: This should open a browser that connects to localhost:9000.
+3. Add breakpoints, and debug. Intially breakpoint may not appear red.
+
+### LOCAL Serve
+
+If for some reason you need to run a build on LOCAL. AKA view a distribution.
+
+1. _Requirement_ Have Quasar CLI package installed globally.
+2. Use the VSCode task `Quasar Serve`
+3. Visit [http://localhost:3223](http://localhost:3223)
