@@ -8,7 +8,7 @@
       "type": "chrome",
       "request": "launch",
       "name": "Quasar App: chrome",
-      "url": "http://localhost:9000",
+      "url": "http://localhost:3223",
       "webRoot": "${workspaceFolder}/src",
       "breakOnLoad": true,
       // No need to configure sourcemap explicitly for vite.

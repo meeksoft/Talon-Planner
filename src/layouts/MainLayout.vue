@@ -11,25 +11,15 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
+        <q-toolbar-title> Talon Planer </q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
+    <q-drawer v-model="leftDrawerOpen" bordered>
       <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
+        <q-item-label header> Essential Links </q-item-label>
 
         <EssentialLink
           v-for="link in essentialLinks"
@@ -54,63 +44,63 @@ const linksList = [
     title: 'Docs',
     caption: 'quasar.dev',
     icon: 'school',
-    link: 'https://quasar.dev'
+    link: 'https://quasar.dev',
   },
   {
     title: 'Github',
     caption: 'github.com/quasarframework',
     icon: 'code',
-    link: 'https://github.com/quasarframework'
+    link: 'https://github.com/quasarframework',
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
+    title: 'Homecoming Wiki',
+    caption: 'homecoming.wiki',
     icon: 'chat',
-    link: 'https://chat.quasar.dev'
+    link: 'https://homecoming.wiki',
   },
   {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
+    title: 'Homecoming Forum',
+    caption: 'forums.homecomingservers.com',
     icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
+    link: 'https://forums.homecomingservers.com',
   },
   {
-    title: 'Twitter',
-    caption: '@quasarframework',
+    title: 'Mids Reborn',
+    caption: 'midsreborn.com',
     icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
+    link: 'https://midsreborn.com',
   },
   {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
+    title: 'City of Data v2.0',
+    caption: 'cod.uberguy.net',
     icon: 'public',
-    link: 'https://facebook.quasar.dev'
+    link: 'https://cod.uberguy.net',
   },
   {
     title: 'Quasar Awesome',
     caption: 'Community Quasar projects',
     icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
+    link: 'https://awesome.quasar.dev',
+  },
 ];
 
 export default defineComponent({
   name: 'MainLayout',
 
   components: {
-    EssentialLink
+    EssentialLink,
   },
 
-  setup () {
-    const leftDrawerOpen = ref(false)
+  setup() {
+    const leftDrawerOpen = ref(false);
 
     return {
       essentialLinks: linksList,
       leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      }
-    }
-  }
+      toggleLeftDrawer() {
+        leftDrawerOpen.value = !leftDrawerOpen.value;
+      },
+    };
+  },
 });
 </script>

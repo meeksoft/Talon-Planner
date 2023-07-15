@@ -8,6 +8,14 @@
       "problemMatcher": [],
       "label": "Quasar Serve",
       "detail": "quasar serve spa"
+    },
+    {
+      "type": "shell",
+      "command": "quasar clean",
+      "group": "test",
+      "problemMatcher": [],
+      "label": "Quasar Clean",
+      "detail": "quasar Clean"
     }
   ]
 }

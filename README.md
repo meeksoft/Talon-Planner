@@ -2,7 +2,37 @@
 
 City of Heroes Planner
 
-## Command Commands
+## Purpose
+
+- Why the name? I'm a Trick Arrow fan since the very beginning.
+  And not because it's arrows. But because I enjoy debuffing and busy-ness.
+- It's fun learning and creating new things.
+- To get the ball moving on updating a planner.
+  To hopefully demonstrate how much easier it is.
+- We owe a big thanks to [City of Data 2.0](https://cod.uberguy.net/).
+  For we use their json.
+- This has been architected and thought-out as far as a quick way
+  to demonstrate, and a full foundation.
+- Wanted something that could handle various platforms, is responsive, and perhaps, become a PWA for [offline] mobile.
+- I am unable to commit long term to this.
+
+Once AGAIN...
+This was never meant to replace any existing planner.
+This was to hopefully take the next step in "planners," being multi-platform. I am thankful and still use other planners. This community is awesome.
+
+## Updating
+
+### Data
+
+We download the zip file from [City of Data 2.0](https://cod.uberguy.net/)
+and unzip it into the `public\json\homecoming` folder.
+
+### Images
+
+Icons were download from various sites.
+They are placed into the `public\icon` folder.
+
+## Commands
 
 - Install the dependencies: `yarn install` . We recommend using `yarn` to manage local packages.
 - Start the app in development mode (hot-code reloading, error reporting, etc.): `quasar dev`
