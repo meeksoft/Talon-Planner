@@ -18,6 +18,7 @@
             expand-icon-toggle
             group="firstGroup"
             header-class="bg-primary text-white shadow-2 q-toolbar"
+            expand-icon-class="text-white"
           >
             <template v-slot:header>
               <q-toolbar class="bg-primary text-white q-toolbar">
@@ -218,6 +219,7 @@
 
 <script>
 import { defineComponent, computed, ref, toRef } from 'vue';
+import { useQuasar } from 'quasar';
 import { useTalonStore } from 'stores/talon-store';
 import { PowersetType } from 'components/models';
 import MultiViewer from 'components/MultiViewer.vue';
@@ -300,28 +302,70 @@ export default defineComponent({
     };
   },
   async mounted() {
+    const $q = useQuasar();
+    let notifyConfig = {
+      type: 'ongoing',
+      color: 'info',
+      position: 'bottom-right',
+      caption: '0%',
+      message: '',
+    };
+
     /* BAR needs to track better */
     this.bar.start();
-    await this.store.fetchBoosts();
-    await this.store.fetchBoostsets();
-    await this.store.fetchArchetypes();
-    await this.store.fetchPowersets();
-    await this.store.fetchEpics();
-    await this.store.fetchPools();
 
+    const notif = $q.notify({ ...notifyConfig, message: 'Loading Boosts.' });
+    await this.store.fetchBoosts();
+    notif({
+      caption: `${(100 / 6).toFixed(0)}%`,
+      message: 'Loading Boost sets.',
+    });
+    await this.store.fetchBoostsets();
+
+    notif({
+      caption: `${(200 / 6).toFixed(0)}%`,
+      message: 'Loading Archetypes.',
+    });
+    await this.store.fetchArchetypes();
     this.archetypeOptions = this.store.archetypes;
+    this.archetypeModel = []; //Trigger Refreshes
+
+    notif({
+      caption: `${(300 / 6).toFixed(0)}%`,
+      message: 'Loading Power sets.',
+    });
+    await this.store.fetchPowersets();
+    this.primaryModel = []; //Trigger Refreshes
+    this.secondaryModel = []; //Trigger Refreshes
+
+    notif({
+      caption: `${(400 / 6).toFixed(0)}%`,
+      message: 'Loading Epics.',
+    });
+    await this.store.fetchEpics();
+    this.epicModel = []; //Trigger Refreshes
+
+    notif({
+      caption: `${(500 / 6).toFixed(0)}%`,
+      message: 'Loading Pools.',
+    });
+    await this.store.fetchPools();
     this.poolOptions = this.store.pools;
 
+    notif({
+      type: 'positive',
+      color: 'positive',
+      caption: '100%',
+      message: 'Loading is Pau!',
+    });
+
     /* Trigger Refreshes */
-    this.archetypeModel = [];
-    this.primaryModel = [];
-    this.secondaryModel = [];
-    this.epicModel = [];
     this.poolModel = [];
     this.poolPowersetCard1 = [];
     this.poolPowersetCard2 = [];
     this.poolPowersetCard3 = [];
     this.poolPowersetCard4 = [];
+
     this.bar.stop();
   },
   methods: {

@@ -3,14 +3,14 @@
     clickable
     v-ripple
     @click.prevent="itemClick()"
-    :v-model="powerSlot"
+    :v-model="buildSlot"
     active-class="border-accent"
-    :active="powerSlot.selected"
+    :active="buildSlot.selected"
   >
-    <q-item-section top class="power-level-slot-item">
+    <q-item-section top class="build-slot-item">
       <q-item-label lines="1" style="margin-left: 2px">
         <q-item-label style="position: absolute; top: 20%; left: 0">
-          {{ getSlotLevel(powerSlot.level) }}
+          {{ getSlotLevel(buildSlot.level) }}
         </q-item-label>
         <q-btn
           size="lg"
@@ -18,14 +18,14 @@
           flat
           dense
           round
-          :icon="powerSlot.power.icon"
+          :icon="buildSlot.power.icon"
           @click.capture.stop="iconClick()"
         />
-        <span class="text-weight-medium">{{ powerSlot.power.label }}</span>
+        <span class="text-weight-medium">{{ buildSlot.power.label }}</span>
       </q-item-label>
       <q-item-label lines="1" style="margin-left: -10px">
         <q-btn
-          v-for="(enhancementSlot, index) in powerSlot.enhancementSlots"
+          v-for="(enhancementSlot, index) in buildSlot.enhancementSlots"
           :key="index"
           :v-model="enhancementSlot"
           rounded
@@ -36,7 +36,7 @@
           size="md"
           padding="none"
           @click.capture.stop="enClick(index)"
-          class="power-level-slot-enhancement-button"
+          class="build-slot-enhancement-button"
         >
           <div v-show="enhancementSlot.level > 0">
             {{ enhancementSlot.level }}
@@ -46,7 +46,7 @@
           </q-tooltip>
           <enhancement-slot-menu
             :ref="'enhancementSlotMenu' + index"
-            :powerSlot="powerSlot"
+            :buildSlot="buildSlot"
             :enhancementSlot="enhancementSlot"
           ></enhancement-slot-menu>
           <!-- <q-menu :ref="'enhancementSlotMenu' + index">
@@ -77,10 +77,10 @@ import { useTalonStore } from 'stores/talon-store';
 import EnhancementSlotMenu from 'components/EnhancementSlotMenu.vue';
 
 export default defineComponent({
-  name: 'PowerLevelSlot',
+  name: 'BuildSlot',
   components: { EnhancementSlotMenu },
   props: {
-    powerSlot: {
+    buildSlot: {
       type: Object,
       required: true,
       default: () => ({ level: 0, power: null }),
@@ -103,39 +103,39 @@ export default defineComponent({
     },
     isEmptySlot() {
       if (
-        this.powerSlot.power == undefined ||
-        this.powerSlot.power.label.length < 1
+        this.buildSlot.power == undefined ||
+        this.buildSlot.power.label.length < 1
       )
         return true;
       return false;
     },
     getEnhancementSlotIcon(val) {
       if (
-        val < this.powerSlot.enhancementSlots.length &&
-        this.powerSlot.enhancementSlots[val].enhancement.icon.length > 0
+        val < this.buildSlot.enhancementSlots.length &&
+        this.buildSlot.enhancementSlots[val].enhancement.icon.length > 0
       ) {
-        return this.powerSlot.enhancementSlots[val].enhancement.icon;
+        return this.buildSlot.enhancementSlots[val].enhancement.icon;
       }
       //return 'add_circle';
       return 'add_circle_outline';
     },
     itemClick() {
       if (this.isEmptySlot()) {
-        this.store.selectPowerSlot(this.powerSlot);
+        this.store.selectBuildSlot(this.buildSlot);
         return;
       }
-      this.store.addEnhancementSlotTo(this.powerSlot);
+      this.store.addEnhancementSlotTo(this.buildSlot);
     },
     iconClick() {
       if (this.isEmptySlot()) return;
-      this.store.removePowerSlotFromBuild(this.powerSlot);
+      this.store.removeBuildSlotFromBuild(this.buildSlot);
     },
     enClick(val) {
-      if (this.powerSlot.enhancementSlots.length < val + 1) return;
+      if (this.buildSlot.enhancementSlots.length < val + 1) return;
       const enhancementSlotMenu = this.$refs['enhancementSlotMenu' + val][0];
       if (enhancementSlotMenu == undefined) return;
       enhancementSlotMenu.show();
-      //console.log(this.powerSlot.enhancementSlots[val]);
+      //console.log(this.buildSlot.enhancementSlots[val]);
     },
     testClick() {
       console.log('Test Click');
@@ -150,7 +150,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.power-level-slot-item {
+.build-slot-item {
   page-break-inside: avoid;
   break-inside: avoid;
   -webkit-column-break-inside: avoid;

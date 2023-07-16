@@ -1,9 +1,9 @@
 <template>
   <q-menu ref="enhancementSlotMenu" style="width: 300px">
-    <q-card class="my-card bg-secondary text-white">
+    <q-card class="bg-secondary text-white">
       <q-card-section>
-        <div class="text-h6">{{ powerSlot.power.label }}</div>
-        <div class="text-subtitle2">{{ powerSlot.power.tooltip }}</div>
+        <div class="text-h6">{{ buildSlot.power.label }}</div>
+        <div class="text-subtitle2">{{ buildSlot.power.tooltip }}</div>
       </q-card-section>
 
       <q-card-section style="height: 150px; overflow-y: auto">
@@ -33,7 +33,7 @@
       </q-card-section>
 
       <q-card-section style="height: 100px; overflow-y: auto">
-        <div v-html="powerSlot.power.description"></div>
+        <div v-html="buildSlot.power.description"></div>
       </q-card-section>
       <q-separator dark />
       <q-card-actions>
@@ -57,7 +57,7 @@ export default {
     enhancementSlot: {
       type: Object,
     },
-    powerSlot: {
+    buildSlot: {
       type: Object,
     },
   },
@@ -73,7 +73,7 @@ export default {
       const list = [];
       const genericBoosts = [];
       list.push(genericBoosts);
-      for (const boost of this.powerSlot.power.boosts) {
+      for (const boost of this.buildSlot.power.boosts) {
         if (boost.group == 'generic') genericBoosts.push(boost);
         else {
           /* Loop through all boost sets of that type. */
@@ -106,12 +106,12 @@ export default {
     },
     clearClick() {
       this.hide();
-      this.store.clearEnhancementSlotFrom(this.powerSlot, this.enhancementSlot);
+      this.store.clearEnhancementSlotFrom(this.buildSlot, this.enhancementSlot);
     },
     removeClick() {
       this.hide();
       this.store.removeEnhancementSlotFrom(
-        this.powerSlot,
+        this.buildSlot,
         this.enhancementSlot
       );
     },

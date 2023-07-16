@@ -9,6 +9,7 @@
       :icon="powerset ? powerset.icon : powersetModel.icon"
       :label="powerset ? powerset.label : powersetModel.label"
       header-class="bg-light-blue text-white"
+      expand-icon-class="text-white"
     >
       <template v-slot:header v-if="!powerset">
         <q-select

@@ -63,7 +63,7 @@ export class EnhancementSlot implements IEnhancementSlot {
   enhancement = new Boost();
 }
 
-export interface IPowerSlot {
+export interface IBuildSlot {
   level: number;
   power: Power;
   powersetType: number;
@@ -71,13 +71,15 @@ export interface IPowerSlot {
   selected: boolean;
 }
 
-export class PowerSlot implements IPowerSlot {
+export class BuildSlot implements IBuildSlot {
   level = -1;
   power = EmptyPower;
   powersetType = 0;
   enhancementSlots = [] as EnhancementSlot[];
   selected = false;
 }
+
+export const EmptyBuildSlot = new BuildSlot();
 
 export interface IBoost {
   label: string;

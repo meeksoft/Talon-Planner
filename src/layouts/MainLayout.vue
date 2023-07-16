@@ -32,6 +32,17 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <!-- <q-footer elevated>
+      <q-toolbar>
+        <q-avatar>
+          <img src="/icons/icon-512x512.png" />
+        </q-avatar>
+        <q-toolbar-title>
+          <div>Title</div>
+        </q-toolbar-title>
+      </q-toolbar>
+    </q-footer> -->
   </q-layout>
 </template>
 
