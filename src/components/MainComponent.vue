@@ -23,12 +23,12 @@
             <template v-slot:header>
               <q-toolbar class="bg-primary text-white q-toolbar">
                 <q-select
-                  :key="archetypeModel"
+                  :key="store.archetypeModel"
                   ref="archetypeSelect"
                   rounded
                   standout
                   hide-dropdown-icon
-                  v-model="archetypeModel"
+                  v-model="store.archetypeModel"
                   :options="archetypeOptions"
                   @update:model-value="(value) => updatePowersets(value)"
                 >
@@ -50,19 +50,19 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="archetypeModel.icon" size="xl">
-                      <q-tooltip>{{ archetypeModel.label }}</q-tooltip>
+                    <q-icon :name="store.archetypeModel.icon" size="xl">
+                      <q-tooltip>{{ store.archetypeModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
                 </q-select>
 
                 <q-select
-                  :key="primaryModel"
+                  :key="store.primaryModel"
                   ref="primarySelect"
                   rounded
                   standout
                   hide-dropdown-icon
-                  v-model="primaryModel"
+                  v-model="store.primaryModel"
                   :options="primaryOptions"
                   color="primary"
                   @update:model-value="(val) => updatePrimary(val)"
@@ -88,19 +88,19 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="primaryModel.icon" size="lg">
-                      <q-tooltip>{{ primaryModel.label }}</q-tooltip>
+                    <q-icon :name="store.primaryModel.icon" size="lg">
+                      <q-tooltip>{{ store.primaryModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
                 </q-select>
 
                 <q-select
-                  :key="secondaryModel"
+                  :key="store.secondaryModel"
                   ref="secondarySelect"
                   rounded
                   standout
                   hide-dropdown-icon
-                  v-model="secondaryModel"
+                  v-model="store.secondaryModel"
                   :options="secondaryOptions"
                   @update:model-value="(val) => updateSecondary(val)"
                 >
@@ -125,19 +125,19 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="secondaryModel.icon" size="lg">
-                      <q-tooltip>{{ secondaryModel.label }}</q-tooltip>
+                    <q-icon :name="store.secondaryModel.icon" size="lg">
+                      <q-tooltip>{{ store.secondaryModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
                 </q-select>
 
                 <q-select
-                  :key="epicModel"
+                  :key="store.epicModel"
                   ref="epicSelect"
                   rounded
                   standout
                   hide-dropdown-icon
-                  v-model="epicModel"
+                  v-model="store.epicModel"
                   :options="epicOptions"
                   @update:model-value="(val) => updateEpic(val)"
                 >
@@ -162,8 +162,8 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="epicModel.icon" size="lg">
-                      <q-tooltip>{{ epicModel.label }}</q-tooltip>
+                    <q-icon :name="store.epicModel.icon" size="lg">
+                      <q-tooltip>{{ store.epicModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
                 </q-select>
@@ -171,32 +171,33 @@
             </template>
 
             <div class="row">
-              <div class="col-xs-12 col-sm-4 our-card">
-                <powerset-card
-                  :key="primaryList"
-                  :powerset="primarySelected"
-                ></powerset-card>
+              <div class="col-xs-12 col-sm-4 first-group-column">
+                <powerset-card :powerset="primarySelected"></powerset-card>
               </div>
-              <div class="col-xs-12 col-sm-4 our-card">
+              <div class="col-xs-12 col-sm-4 first-group-column">
                 <powerset-card :powerset="secondarySelected"></powerset-card>
               </div>
-              <div class="col-xs-12 col-sm-4 our-card-long">
+              <div class="col-xs-12 col-sm-4 first-group-column-long">
                 <powerset-card :powerset="epicSelected"></powerset-card>
                 <powerset-card
                   :key="poolPowersetCard1"
                   :powersets="poolOptions"
+                  :selectModel="store.pool1Model"
                 ></powerset-card>
                 <powerset-card
                   :key="poolPowersetCard2"
                   :powersets="poolOptions"
+                  :selectModel="store.pool2Model"
                 ></powerset-card>
                 <powerset-card
                   :key="poolPowersetCard3"
                   :powersets="poolOptions"
+                  :selectModel="store.pool3Model"
                 ></powerset-card>
                 <powerset-card
                   :key="poolPowersetCard4"
                   :powersets="poolOptions"
+                  :selectModel="store.pool4Model"
                 ></powerset-card>
               </div>
             </div>
@@ -272,30 +273,22 @@ export default defineComponent({
     const secondaryOptions = [];
     const epicOptions = [];
     const poolOptions = [];
-    const primaryList = 0;
 
     return {
       store,
       bar,
-      archetypeModel: ref({ icon: '', label: 'Select Archetype' }),
-      primaryModel: ref({ icon: '', label: 'Select Primary Set' }),
-      secondaryModel: ref({ icon: '', label: 'Select Secondary Set' }),
-      epicModel: ref({ icon: '', label: 'Select Epic Set' }),
-      poolModel: ref({ icon: '', label: 'Select Pool Set' }),
-      poolPowersetCard1: ref({}),
-      poolPowersetCard2: ref({}),
-      poolPowersetCard3: ref({}),
-      poolPowersetCard4: ref({}),
       archetypeOptions,
       primaryOptions,
       secondaryOptions,
       epicOptions,
       poolOptions,
+      poolPowersetCard1: ref({}),
+      poolPowersetCard2: ref({}),
+      poolPowersetCard3: ref({}),
+      poolPowersetCard4: ref({}),
       primarySelected: ref({ icon: '', label: 'None' }),
       secondarySelected: ref({ icon: '', label: 'None' }),
       epicSelected: ref({ icon: '', label: 'None' }),
-      poolSelected: ref({ icon: '', label: 'None' }),
-      primaryList,
       pt,
       ...useClickCount(),
       ...useDisplayTodo(toRef(props, 'todos')),
@@ -311,46 +304,54 @@ export default defineComponent({
       message: '',
     };
 
+    const steps = 7;
+
     /* BAR needs to track better */
     this.bar.start();
 
     const notif = $q.notify({ ...notifyConfig, message: 'Loading Boosts.' });
     await this.store.fetchBoosts();
     notif({
-      caption: `${(100 / 6).toFixed(0)}%`,
+      caption: `${(100 / steps).toFixed(0)}%`,
       message: 'Loading Boost sets.',
     });
     await this.store.fetchBoostsets();
 
     notif({
-      caption: `${(200 / 6).toFixed(0)}%`,
+      caption: `${(200 / steps).toFixed(0)}%`,
       message: 'Loading Archetypes.',
     });
     await this.store.fetchArchetypes();
     this.archetypeOptions = this.store.archetypes;
-    this.archetypeModel = []; //Trigger Refreshes
+    this.store.archetypeModel = []; //Trigger Refreshes
 
     notif({
-      caption: `${(300 / 6).toFixed(0)}%`,
+      caption: `${(300 / steps).toFixed(0)}%`,
       message: 'Loading Power sets.',
     });
     await this.store.fetchPowersets();
-    this.primaryModel = []; //Trigger Refreshes
-    this.secondaryModel = []; //Trigger Refreshes
+    this.store.primaryModel = []; //Trigger Refreshes
+    this.store.secondaryModel = []; //Trigger Refreshes
 
     notif({
-      caption: `${(400 / 6).toFixed(0)}%`,
+      caption: `${(400 / steps).toFixed(0)}%`,
       message: 'Loading Epics.',
     });
     await this.store.fetchEpics();
-    this.epicModel = []; //Trigger Refreshes
+    this.store.epicModel = []; //Trigger Refreshes
 
     notif({
-      caption: `${(500 / 6).toFixed(0)}%`,
+      caption: `${(500 / steps).toFixed(0)}%`,
       message: 'Loading Pools.',
     });
     await this.store.fetchPools();
     this.poolOptions = this.store.pools;
+
+    notif({
+      caption: `${(600 / steps).toFixed(0)}%`,
+      message: 'Loading Inherits.',
+    });
+    await this.store.fetchInherits();
 
     notif({
       type: 'positive',
@@ -360,13 +361,52 @@ export default defineComponent({
     });
 
     /* Trigger Refreshes */
-    this.poolModel = [];
     this.poolPowersetCard1 = [];
     this.poolPowersetCard2 = [];
     this.poolPowersetCard3 = [];
     this.poolPowersetCard4 = [];
 
     this.bar.stop();
+  },
+  computed: {
+    archetypeModel() {
+      return this.store.archetypeModel;
+    },
+    primaryModel() {
+      return this.store.primaryModel;
+    },
+    secondaryModel() {
+      return this.store.secondaryModel;
+    },
+    epicModel() {
+      return this.store.epicModel;
+    },
+  },
+  watch: {
+    archetypeModel: {
+      deep: true,
+      handler: function () {
+        this.updatePowersets(this.store.archetypeModel);
+      },
+    },
+    primaryModel: {
+      deep: true,
+      handler: function () {
+        this.updatePrimary(this.store.primaryModel);
+      },
+    },
+    secondaryModel: {
+      deep: true,
+      handler: function () {
+        this.updateSecondary(this.store.secondaryModel);
+      },
+    },
+    epicModel: {
+      deep: true,
+      handler: function () {
+        this.updateEpic(this.store.epicModel);
+      },
+    },
   },
   methods: {
     updatePowersets(archetype) {
@@ -384,9 +424,6 @@ export default defineComponent({
     updateEpic(powerset) {
       this.epicSelected = powerset;
     },
-    updatePool(powerset) {
-      this.poolSelected = powerset;
-    },
   },
 });
 </script>
@@ -397,11 +434,11 @@ export default defineComponent({
 }
 
 @media screen and (min-width: 600px) {
-  .our-card {
+  .first-group-column {
     height: calc(60vh - 110px);
     overflow: auto;
   }
-  .our-card-long {
+  .first-group-column-long {
     height: calc(100vh - 170px);
     overflow: auto;
   }

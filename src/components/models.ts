@@ -60,7 +60,7 @@ export interface IEnhancementSlot {
 export class EnhancementSlot implements IEnhancementSlot {
   level = -1;
   assigned = false;
-  enhancement = new Boost();
+  enhancement = EmptyBoost;
 }
 
 export interface IBuildSlot {
@@ -96,6 +96,8 @@ export class Boost implements IBoost {
   icon = '';
   aspects = [];
 }
+
+export const EmptyBoost = new Boost();
 
 export interface IBoostSet {
   label: string; //Display Name

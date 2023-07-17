@@ -1,3 +1,10 @@
+<!---------------------------------------
+ | If used as a dropdown, assign property powersets.
+ | If used to show a single powerset, assign property powerset.
+ | Do not assign both powersets and powerset.
+ |
+ | Assign property selectModel to: assign dropdown, and trigger actions.
+ ---------------------------------------->
 <template>
   <q-list bordered class="rounded-borders powerset-card-list">
     <q-expansion-item
@@ -95,6 +102,9 @@ export default defineComponent({
     powerset: {
       type: Object,
     },
+    selectModel: {
+      type: Object,
+    },
   },
   setup() {
     const store = useTalonStore();
@@ -103,9 +113,32 @@ export default defineComponent({
     return {
       store,
       powers,
-      powersetModel: ref({ icon: '', label: 'Select Set' }),
+      powersetModelHolder: ref({ icon: '', label: 'Select Set' }),
       powersetPowersModel: ref(null),
     };
+  },
+  mounted() {
+    //
+  },
+  computed: {
+    powersetModel: {
+      get() {
+        if (this.selectModel != undefined && this.selectModel != null)
+          return this.selectModel;
+        return this.powersetModelHolder;
+      },
+      set(value) {
+        this.powersetModelHolder = value;
+      },
+    },
+  },
+  watch: {
+    selectModel: {
+      deep: true,
+      handler: function () {
+        this.updatePowerset(this.selectModel);
+      },
+    },
   },
   methods: {
     guessIcon(powerName) {
@@ -122,7 +155,7 @@ export default defineComponent({
       );
     },
     mouseenter(e, power) {
-      this.store.power = power;
+      this.store.uiSelectedPower = power;
     },
     updatePowerset(powerset) {
       this.powers = powerset.powers;

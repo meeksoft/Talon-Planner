@@ -15,13 +15,13 @@
       </q-toolbar>
     </template>
 
-    <q-card class="no-border-radius q-pa-md no-margin our-card">
+    <q-card class="no-border-radius q-pa-md no-margin">
       <div>{{ store.counter }}</div>
     </q-card>
   </q-expansion-item>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from 'vue';
 import { useTalonStore } from 'stores/talon-store';
 
@@ -51,9 +51,4 @@ export default defineComponent({
 .q-toolbar {
   height: 60px;
 }
-
-/* .our-card {
-  height: calc(100vh - 170px);
-  overflow: auto;
-} */
 </style>

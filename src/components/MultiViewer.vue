@@ -1,5 +1,5 @@
 <template>
-  <div class="our-card">
+  <div>
     <build-card
       v-if="title == 'Build'"
       :groupName="groupName"
@@ -37,10 +37,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-/* .our-card {
-  height: calc(100vh - 110px);
-  overflow: auto;
-} */
-</style>

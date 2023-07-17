@@ -1,3 +1,4 @@
+<!-- //TODO: Implement Inherits -->
 <template>
   <q-expansion-item
     dense
@@ -12,6 +13,9 @@
     <template v-slot:header>
       <q-toolbar class="bg-primary text-white q-toolbar">
         <q-toolbar-title>Build</q-toolbar-title>
+        <q-btn flat round dense icon="autorenew" @click="newBuildClick()">
+          <q-tooltip>New Build</q-tooltip>
+        </q-btn>
         <q-btn flat round dense icon="file_open" @click="openBuild = true">
           <q-tooltip>Open Build<br />Copy Current or Paste New</q-tooltip>
         </q-btn>
@@ -122,7 +126,10 @@ export default defineComponent({
     mouseenter(e, power) {
       if (power == undefined) return;
       console.log(power);
-      this.store.power = power;
+      this.store.uiSelectedPower = power;
+    },
+    newBuildClick() {
+      this.store.emptyBuild();
     },
     updateClick() {
       let build = this.openBuildText.trim();
@@ -138,11 +145,13 @@ export default defineComponent({
 
       /* MBD */
       if (build.indexOf('BuiltWith') >= 0) {
+        let json = {};
         try {
-          this.store.loadMBDObject(JSON.parse(build));
+          json = JSON.parse(build);
         } catch (e) {
-          console.log('MBD file not a valid JSON object');
+          console.log(e.message);
         }
+        this.store.loadMBDObject(json);
         return;
       }
     },

@@ -4,6 +4,7 @@
 import { defineStore } from 'pinia';
 import { api } from 'src/boot/axios';
 import { ref } from 'vue';
+import { useQuasar } from 'quasar';
 
 import {
   BuildSlot,
@@ -14,16 +15,21 @@ import {
   Boost,
   Archetype,
   Powerset,
+  EmptyBoost,
   EmptyPower,
   EmptyBuildSlot,
 } from 'src/components/models';
 
 export const useTalonStore = defineStore('talon', {
   state: () => ({
+    $q: useQuasar(),
+
     /* Interface */
     counter: 0,
-    power: EmptyPower, //MouseEnter Power
-    buildSlot: EmptyBuildSlot, //Selected Build Slot.
+    showDebugConsoleErrors: true,
+
+    uiSelectedPower: EmptyPower, //MouseEnter Power
+    uiSelectedBuildSlot: EmptyBuildSlot, //Selected Build Slot.
     levels: [], //Loaded from leveling.json; Used to help build Build
 
     fileTypeOptions: [
@@ -31,6 +37,44 @@ export const useTalonStore = defineStore('talon', {
       { label: 'MXD (Legacy)', value: 'MXD' },
     ],
     exportFileTypeModel: ref({ label: 'MBD 3.5.5.7', value: 'MBD' }),
+
+    /* Interface -- Example: for loading a build */
+    archetypeModel: ref({ icon: '', label: 'Select Archetype' }),
+    primaryModel: ref({
+      icon: '',
+      label: 'Select Primary Set',
+      powers: [] as Power[],
+    }),
+    secondaryModel: ref({
+      icon: '',
+      label: 'Select Secondary Set',
+      powers: [] as Power[],
+    }),
+    epicModel: ref({
+      icon: '',
+      label: 'Select Epic Set',
+      powers: [] as Power[],
+    }),
+    pool1Model: ref({
+      icon: '',
+      label: 'Select Pool Set',
+      powers: [] as Power[],
+    }),
+    pool2Model: ref({
+      icon: '',
+      label: 'Select Pool Set',
+      powers: [] as Power[],
+    }),
+    pool3Model: ref({
+      icon: '',
+      label: 'Select Pool Set',
+      powers: [] as Power[],
+    }),
+    pool4Model: ref({
+      icon: '',
+      label: 'Select Pool Set',
+      powers: [] as Power[],
+    }),
 
     /* Build */
     buildSlots: new Array<BuildSlot>(), //The Build.
@@ -46,6 +90,17 @@ export const useTalonStore = defineStore('talon', {
     doubleCount: (state) => state.counter * 2,
   },
   actions: {
+    notify(type: string, message: string) {
+      //const $q = useQuasar();
+      this.$q.notify({
+        position: 'bottom-right',
+        type: type,
+        message: message,
+      });
+      if (this.showDebugConsoleErrors) {
+        console.log('' + type + ': ' + message);
+      }
+    },
     async fetchBoosts() {
       /* Read from our custom file to load all types of boosts */
       const response = await api.get('/json/talonplanner/boosts.json');
@@ -77,14 +132,14 @@ export const useTalonStore = defineStore('talon', {
     async fetchBoostsets() {
       /* Grab all Boostsets from index.json.
          We will compare this to the groups json. */
-      const response = await api.get('/json/homecoming/boost_sets/index.json');
-      const boostSets = [];
-      for (let index = 0; index < response.data.set_names.length; index++) {
-        const boostSet = new BoostSet();
-        boostSet.value = response.data.set_names[index];
-        boostSet.label = response.data.set_display_names[index];
-        boostSets.push(boostSet);
-      }
+      // const response = await api.get('/json/homecoming/boost_sets/index.json');
+      // const boostSets = [];
+      // for (let index = 0; index < response.data.set_names.length; index++) {
+      //   const boostSet = new BoostSet();
+      //   boostSet.value = response.data.set_names[index];
+      //   boostSet.label = response.data.set_display_names[index];
+      //   boostSets.push(boostSet);
+      // }
 
       /* Grab all groups from groups json
          We will compare listing */
@@ -173,6 +228,7 @@ export const useTalonStore = defineStore('talon', {
         return 0;
       });
 
+      /* Load individual archetype files */
       for (const archetype of this.archetypes) {
         await api
           .get('/json/homecoming/archetypes/' + archetype.value + '.json')
@@ -189,6 +245,7 @@ export const useTalonStore = defineStore('talon', {
       }
     },
     async fetchPowersets() {
+      /* Load Powerset */
       for (const archetype of this.archetypes) {
         /* Loop once for Primary, once for Secondary */
         for (let calls = 0; calls < 2; calls++) {
@@ -262,6 +319,7 @@ export const useTalonStore = defineStore('talon', {
       // const powersetName = powerset.value.replace(/\./g, '/');
       // const categoryName = powersetName.split('/')[1].replace(/_/g, '');
 
+      /* Load Powers for this Powerset */
       await api
         .get(
           '/json/homecoming/powers/' +
@@ -419,6 +477,12 @@ export const useTalonStore = defineStore('talon', {
         return 0;
       });
     },
+    // TODO: Implement fetchInherits()
+    async fetchInherits() {
+      await new Promise((resolve, reject) => {
+        //
+      });
+    },
     buildEmptyBuild() {
       this.buildSlots.length = 0;
       this.enhancementSlots.length = 0;
@@ -446,13 +510,28 @@ export const useTalonStore = defineStore('talon', {
         }
       }
     },
-    addPowerToBuild(selectedPower: Power) {
-      if (selectedPower == undefined) selectedPower = this.power;
-      if (selectedPower == undefined) return;
-      if (selectedPower.assigned) return;
+    emptyBuild() {
+      for (const buildSlot of this.buildSlots) {
+        if (buildSlot.power.label.length > 0) {
+          buildSlot.power.assigned = false;
+        }
+        buildSlot.power = EmptyPower;
+        if (buildSlot.enhancementSlots.length > 0) {
+          buildSlot.enhancementSlots[0].enhancement = EmptyBoost;
+        }
+      }
+      for (const enhancementSlot of this.enhancementSlots) {
+        enhancementSlot.assigned = false;
+        enhancementSlot.enhancement = EmptyBoost;
+      }
+    },
+    addPowerToBuild(selectedPower: Power): BuildSlot | null {
+      if (selectedPower == undefined) selectedPower = this.uiSelectedPower;
+      if (selectedPower == undefined) return null;
+      if (selectedPower.assigned) return null;
 
       /* Only add powers that can be slotted */
-      if (selectedPower.level < 0) return;
+      if (selectedPower.level < 0) return null;
 
       /* Has power already been added */
       let foundIt = false;
@@ -465,15 +544,20 @@ export const useTalonStore = defineStore('talon', {
           break;
         }
       }
-      if (foundIt) return;
+      if (foundIt) return null;
 
       /* Attempt to add to selected BuildSlot */
-      if (this.buildSlot.selected) {
-        if (!this.canPowerBeAssignedToBuildSlot(selectedPower, this.buildSlot))
-          return;
+      if (this.uiSelectedBuildSlot.selected) {
+        if (
+          !this.canPowerBeAssignedToBuildSlot(
+            selectedPower,
+            this.uiSelectedBuildSlot
+          )
+        )
+          return null;
 
-        this.assignPowerToBuildSlot(selectedPower, this.buildSlot);
-        return;
+        this.assignPowerToBuildSlot(selectedPower, this.uiSelectedBuildSlot);
+        return this.uiSelectedBuildSlot;
       }
 
       /* Assign to first available slot. */
@@ -484,14 +568,16 @@ export const useTalonStore = defineStore('talon', {
           continue;
 
         this.assignPowerToBuildSlot(selectedPower, buildSlot);
-        break;
+        return buildSlot;
       }
+
+      return null;
     },
     canPowerBeAssignedToBuildSlot(
       selectedPower: Power,
       selectedBuildSlot: BuildSlot
-    ) {
-      if (selectedBuildSlot.power.assigned) return; //Already has a Power.
+    ): boolean {
+      if (selectedBuildSlot.power.assigned) return false; //Already has a Power.
 
       if (selectedBuildSlot.level < selectedPower.level + 1) return false;
       if (selectedBuildSlot.power.label.length > 0) return false; //if it's not available, continue;
@@ -535,7 +621,7 @@ export const useTalonStore = defineStore('talon', {
         enhancementSlot.assigned = false;
       }
     },
-    addEnhancementSlotTo(buildSlot: BuildSlot) {
+    addNextAvailableEnhancementSlotTo(buildSlot: BuildSlot) {
       if (buildSlot.enhancementSlots.length >= 6) return;
 
       for (let index = 0; index < this.enhancementSlots.length; index++) {
@@ -544,10 +630,16 @@ export const useTalonStore = defineStore('talon', {
         if (enhancementSlot.assigned) continue;
         if (enhancementSlot.level < buildSlot.level) continue;
 
-        enhancementSlot.assigned = true;
-        buildSlot.enhancementSlots.push(enhancementSlot);
+        this.addEnhancementSlotTo(enhancementSlot, buildSlot);
         break;
       }
+    },
+    addEnhancementSlotTo(
+      enhancementSlot: EnhancementSlot,
+      buildSlot: BuildSlot
+    ) {
+      enhancementSlot.assigned = true;
+      buildSlot.enhancementSlots.push(enhancementSlot);
     },
     addEnhancementToSlot(
       selectedEnhancementSlot: EnhancementSlot,
@@ -559,7 +651,7 @@ export const useTalonStore = defineStore('talon', {
       buildSlot: BuildSlot,
       selectedEnhancementSlot: EnhancementSlot
     ) {
-      selectedEnhancementSlot.enhancement = new Boost();
+      selectedEnhancementSlot.enhancement = EmptyBoost;
     },
     removeEnhancementSlotFrom(
       buildSlot: BuildSlot,
@@ -570,15 +662,20 @@ export const useTalonStore = defineStore('talon', {
 
       selectedEnhancementSlot.level = -1;
       selectedEnhancementSlot.assigned = false;
-      selectedEnhancementSlot.enhancement = new Boost();
+      selectedEnhancementSlot.enhancement = EmptyBoost;
       buildSlot.enhancementSlots = buildSlot.enhancementSlots.filter(
         (enhancementSlot) => enhancementSlot != selectedEnhancementSlot
       );
     },
-    getBoost(name: string) {
+    // TODO: Add more Boost Types
+    getBoost(name: string): Boost | null {
+      // BUG: Hack to support unsupported enhancements.
+      name = name.replace(/Invention: /g, '');
+
+      /* Find Boost */
       let foundBoost = null;
       this.genericBoosts.forEach((boost) => {
-        if (boost.value == name) {
+        if (boost.value == name || boost.label == name) {
           foundBoost = boost;
           return false;
         }
@@ -593,10 +690,43 @@ export const useTalonStore = defineStore('talon', {
       });
       return foundBoost;
     },
-    getArchetype(name: string) {
+    // TODO: Get Archetype by name or value, etc.
+    getArchetype(name: string): Archetype | null {
+      name = name.toLowerCase();
       for (const archetype of this.archetypes) {
-        if (archetype.value == name) {
+        if (name.indexOf(archetype.value) >= 0) {
           return archetype;
+        }
+      }
+      return null;
+    },
+    getBuildSlotByLevel(level: number, isEmpty: boolean): BuildSlot | null {
+      for (const buildSlot of this.buildSlots) {
+        if (buildSlot.level > level) break; //Slots are ordered.
+        if (buildSlot.level == level) {
+          if (!isEmpty) return buildSlot;
+          if (buildSlot.power == undefined || buildSlot.power.label.length < 1)
+            return buildSlot;
+          else continue;
+        }
+      }
+      return null;
+    },
+    getEnhancementSlotByLevel(
+      level: number,
+      isEmpty: boolean
+    ): EnhancementSlot | null {
+      for (const enhancementSlot of this.enhancementSlots) {
+        if (enhancementSlot.level > level) break; //Slots are ordered.
+        if (enhancementSlot.level == level) {
+          if (!isEmpty) return enhancementSlot;
+          if (
+            !enhancementSlot.assigned ||
+            enhancementSlot.enhancement == undefined ||
+            enhancementSlot.enhancement.label.length < 1
+          )
+            return enhancementSlot;
+          else continue;
         }
       }
       return null;
@@ -614,7 +744,7 @@ export const useTalonStore = defineStore('talon', {
 
       powerset.icon = 'img:/icon/powers/' + icon;
     },
-    selectBuildSlot(selectedBuildSlot: BuildSlot) {
+    assignUIBuildSlot(selectedBuildSlot: BuildSlot) {
       if (selectedBuildSlot.selected) {
         selectedBuildSlot.selected = false;
         return;
@@ -624,10 +754,184 @@ export const useTalonStore = defineStore('talon', {
         buildSlot.selected = false;
       }
       selectedBuildSlot.selected = true;
-      this.buildSlot = selectedBuildSlot;
+      this.uiSelectedBuildSlot = selectedBuildSlot;
+    },
+    getPowerFromSelectedModels(selectedPowerValue: string): Power | null {
+      for (const power of this.primaryModel.powers) {
+        if (power.value == selectedPowerValue) {
+          return power;
+        }
+      }
+      for (const power of this.secondaryModel.powers) {
+        if (power.value == selectedPowerValue) {
+          return power;
+        }
+      }
+      for (const power of this.epicModel.powers) {
+        if (power.value == selectedPowerValue) {
+          return power;
+        }
+      }
+      for (const power of this.pool1Model.powers) {
+        if (power.value == selectedPowerValue) {
+          return power;
+        }
+      }
+      for (const power of this.pool2Model.powers) {
+        if (power.value == selectedPowerValue) {
+          return power;
+        }
+      }
+      for (const power of this.pool3Model.powers) {
+        if (power.value == selectedPowerValue) {
+          return power;
+        }
+      }
+      for (const power of this.pool4Model.powers) {
+        if (power.value == selectedPowerValue) {
+          return power;
+        }
+      }
+      return null;
     },
     loadMBDObject(mbdObject: any) {
       console.log(mbdObject);
+
+      /* Set UI Archetype */
+      const archetype = this.getArchetype(mbdObject.Class);
+
+      if (!archetype) {
+        this.notify('negative', 'Unknown Archetype ' + mbdObject.Class);
+        return;
+      }
+      this.archetypeModel = archetype;
+
+      /* Set UI Power Sets */
+      let poolModelIndex = 1;
+      const powersetArray = mbdObject.PowerSets.map((e: string) =>
+        e.toLowerCase()
+      );
+      for (const powersetValue of powersetArray) {
+        if (powersetValue.length < 1) continue;
+
+        let foundIt = false;
+
+        for (const powerset of archetype.primaryPowersets) {
+          if (powerset.value == powersetValue) {
+            foundIt = true;
+            this.primaryModel = powerset;
+            break;
+          }
+        }
+        if (foundIt) continue;
+
+        for (const powerset of archetype.secondaryPowersets) {
+          if (powerset.value == powersetValue) {
+            foundIt = true;
+            this.secondaryModel = powerset;
+            break;
+          }
+        }
+        if (foundIt) continue;
+
+        for (const powerset of archetype.epicPowersets) {
+          if (powerset.value == powersetValue) {
+            foundIt = true;
+            this.epicModel = powerset;
+            break;
+          }
+        }
+        if (foundIt) continue;
+
+        for (const powerset of this.pools) {
+          if (powerset.value == powersetValue) {
+            foundIt = true;
+            switch (poolModelIndex) {
+              case 1:
+                this.pool1Model = powerset;
+                break;
+
+              case 2:
+                this.pool2Model = powerset;
+                break;
+
+              case 3:
+                this.pool3Model = powerset;
+                break;
+
+              case 4:
+                this.pool4Model = powerset;
+                break;
+
+              default:
+                break;
+            }
+            poolModelIndex++;
+            break;
+          }
+        }
+        if (foundIt) continue;
+      }
+
+      /* Assign Powers to Build Slots */
+      for (const powerEntry of mbdObject.PowerEntries) {
+        const power = this.getPowerFromSelectedModels(powerEntry.PowerName);
+        if (power == null) {
+          this.notify('negative', 'Unknown Power ' + powerEntry.PowerName);
+          continue;
+        }
+
+        const buildSlot = this.getBuildSlotByLevel(
+          powerEntry.Level,
+          powerEntry.Level == 1
+        );
+        if (buildSlot == null) {
+          this.notify(
+            'negative',
+            'Unable to find Build Slot for ' + powerEntry.PowerName
+          );
+          continue;
+        }
+
+        this.assignPowerToBuildSlot(power, buildSlot);
+
+        /* Assign Enhancement Slots */
+        for (let i = 0; i < powerEntry.SlotEntries.length; i++) {
+          let enhancementSlot = null;
+          if (i > 0) {
+            enhancementSlot = this.getEnhancementSlotByLevel(
+              powerEntry.SlotEntries[i].Level,
+              true
+            );
+            if (enhancementSlot == null) {
+              this.notify(
+                'negative',
+                'Unable to find Enhancement Slot for ' + powerEntry.PowerName
+              );
+              continue;
+            }
+            this.addEnhancementSlotTo(enhancementSlot, buildSlot);
+          } else {
+            enhancementSlot = buildSlot.enhancementSlots[0];
+          }
+
+          /* Assign Enhancement */
+          if (powerEntry.SlotEntries[i].Enhancement == null) continue;
+
+          const enhancementName =
+            powerEntry.SlotEntries[i].Enhancement.Enhancement;
+          const enhancement = this.getBoost(enhancementName);
+          if (enhancement == null) {
+            this.notify('negative', 'Unknown Enhancement ' + enhancementName);
+            continue;
+          }
+
+          enhancementSlot.enhancement = enhancement;
+        }
+      }
+    },
+    createMBDObject() {
+      // TODO: Implement createMBDObject()
     },
   },
 });

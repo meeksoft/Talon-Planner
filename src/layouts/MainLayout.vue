@@ -18,6 +18,24 @@
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" bordered>
+      <q-toolbar class="bg-primary text-white">
+        <span>
+          <q-btn flat dense round icon="menu" aria-label="Menu" />
+          <q-tooltip>Dummy Menu</q-tooltip>
+        </span>
+        <q-space />
+        <span>
+          <q-toggle
+            v-model="debugToggleModel"
+            icon="report_problem"
+            aria-label="Console Debug Toggle"
+            @click="
+              store.showDebugConsoleErrors = !store.showDebugConsoleErrors
+            "
+          />
+          <q-tooltip>Console Error Toggle</q-tooltip>
+        </span>
+      </q-toolbar>
       <q-list>
         <q-item-label header> Essential Links </q-item-label>
 
@@ -48,6 +66,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import { useTalonStore } from 'stores/talon-store';
 import EssentialLink from 'components/EssentialLink.vue';
 
 const linksList = [
@@ -103,14 +122,18 @@ export default defineComponent({
   },
 
   setup() {
+    const store = useTalonStore();
     const leftDrawerOpen = ref(false);
+    const debugToggleModel = ref(store.showDebugConsoleErrors);
 
     return {
+      store,
       essentialLinks: linksList,
       leftDrawerOpen,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
+      debugToggleModel,
     };
   },
 });

@@ -37,6 +37,7 @@
           padding="none"
           @click.capture.stop="enClick(index)"
           class="build-slot-enhancement-button"
+          v-show="buildSlot.power.label.length > 0"
         >
           <div v-show="enhancementSlot.level > 0">
             {{ enhancementSlot.level }}
@@ -121,10 +122,10 @@ export default defineComponent({
     },
     itemClick() {
       if (this.isEmptySlot()) {
-        this.store.selectBuildSlot(this.buildSlot);
+        this.store.assignUIBuildSlot(this.buildSlot);
         return;
       }
-      this.store.addEnhancementSlotTo(this.buildSlot);
+      this.store.addNextAvailableEnhancementSlotTo(this.buildSlot);
     },
     iconClick() {
       if (this.isEmptySlot()) return;
