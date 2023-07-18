@@ -18,12 +18,19 @@ import {
   EmptyBoost,
   EmptyPower,
   EmptyBuildSlot,
+  MBDObject,
+  PowerEntry,
+  SlotEntry,
+  Enhancement,
+  ISlotEntry,
+  SlotEntryWithEnhancement,
 } from 'src/components/models';
 
 export const useTalonStore = defineStore('talon', {
   state: () => ({
     $q: useQuasar(),
 
+    //#region Interface
     /* Interface */
     counter: 0,
     showDebugConsoleErrors: true,
@@ -38,43 +45,121 @@ export const useTalonStore = defineStore('talon', {
     ],
     exportFileTypeModel: ref({ label: 'MBD 3.5.5.7', value: 'MBD' }),
 
+    //#endregion Interface
+
+    //#region Interface Load Build
     /* Interface -- Example: for loading a build */
-    archetypeModel: ref({ icon: '', label: 'Select Archetype' }),
-    primaryModel: ref({
-      icon: '',
+    archetypeModel: new Archetype({
+      icon: 'img:/icon/other/1332516744.svg',
+      label: 'Select Archetype',
+    }),
+    primaryModel: new Powerset({
+      icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Primary Set',
       powers: [] as Power[],
     }),
-    secondaryModel: ref({
-      icon: '',
+    secondaryModel: new Powerset({
+      icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Secondary Set',
       powers: [] as Power[],
     }),
-    epicModel: ref({
-      icon: '',
+    epicModel: new Powerset({
+      icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Epic Set',
       powers: [] as Power[],
     }),
-    pool1Model: ref({
-      icon: '',
+    pool1Model: new Powerset({
+      icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Pool Set',
       powers: [] as Power[],
     }),
-    pool2Model: ref({
-      icon: '',
+    pool2Model: new Powerset({
+      icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Pool Set',
       powers: [] as Power[],
     }),
-    pool3Model: ref({
-      icon: '',
+    pool3Model: new Powerset({
+      icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Pool Set',
       powers: [] as Power[],
     }),
-    pool4Model: ref({
-      icon: '',
+    pool4Model: new Powerset({
+      icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Pool Set',
       powers: [] as Power[],
     }),
+
+    originModel: ref({
+      label: 'Select Origin',
+      value: '',
+      icon: 'img:/icon/other/1332516744.svg',
+    }),
+    originOptions: [
+      {
+        label: 'Magic',
+        value: 'Magic',
+        icon: 'img:/icon/other/Originicon_magic.png',
+      },
+      {
+        label: 'Mutation',
+        value: 'Mutation',
+        icon: 'img:/icon/other/Originicon_mutation.png',
+      },
+      {
+        label: 'Natural',
+        value: 'Natural',
+        icon: 'img:/icon/other/Originicon_natural.png',
+      },
+      {
+        label: 'Science',
+        value: 'Science',
+        icon: 'img:/icon/other/Originicon_science.png',
+      },
+      {
+        label: 'Technology',
+        value: 'Technology',
+        icon: 'img:/icon/other/Originicon_technology.png',
+      },
+    ],
+
+    alignmentModel: ref({
+      label: 'Select Alignment',
+      value: '',
+      icon: 'img:/icon/other/1332516744.svg',
+    }),
+    alignmentOptions: [
+      {
+        label: 'Hero',
+        value: 'Hero',
+        icon: 'img:/icon/other/Align_Status_Hero.png',
+      },
+      {
+        label: 'Villain',
+        value: 'Villain',
+        icon: 'img:/icon/other/Align_Status_Villain.png',
+      },
+      {
+        label: 'Vigilante',
+        value: 'Vigilante',
+        icon: 'img:/icon/other/Align_Status_Vigilante.png',
+      },
+      {
+        label: 'Rogue',
+        value: 'Rogue',
+        icon: 'img:/icon/other/Align_Status_Rogue.png',
+      },
+      {
+        label: 'Resistance',
+        value: 'Resistance',
+        icon: 'img:/icon/other/Align_Status_Resistance.png',
+      },
+      {
+        label: 'Loyalist',
+        value: 'Loyalist',
+        icon: 'img:/icon/other/Align_Status_Loyalist.png',
+      },
+    ],
+    //#endregion Interface Load Build
 
     /* Build */
     buildSlots: new Array<BuildSlot>(), //The Build.
@@ -85,6 +170,9 @@ export const useTalonStore = defineStore('talon', {
     boostGroups: new Array<BoostGroup>(), //All the Boostgroups and sets and their boosts.
     archetypes: new Array<Archetype>(), //Archetypes->powersets=>powers
     pools: new Array<Powerset>(),
+
+    /* Export */
+    mbdObject: new MBDObject(), //Reuseable.
   }),
   getters: {
     doubleCount: (state) => state.counter * 2,
@@ -101,6 +189,27 @@ export const useTalonStore = defineStore('talon', {
         console.log('' + type + ': ' + message);
       }
     },
+    //#region Utility
+    toWordUpperCase(str: string, split: string, join: string): string {
+      if (str == undefined || str == null || str.length < 1) return '';
+
+      const words = str.split(split);
+      for (let i = 0; i < words.length; i++) {
+        words[i] =
+          words[i][0].toUpperCase() + words[i].substring(1).toLowerCase();
+      }
+      return words.join(join);
+    },
+    toValueUpperCase(str: string) {
+      if (str == undefined || str == null || str.length < 1) return '';
+      const words = str.split('.');
+      for (let i = 0; i < words.length; i++) {
+        words[i] = this.toWordUpperCase(words[i], '_', '_');
+      }
+      return words.join('.');
+    },
+    //#endregion Utility
+    //#region Fetch
     async fetchBoosts() {
       /* Read from our custom file to load all types of boosts */
       const response = await api.get('/json/talonplanner/boosts.json');
@@ -478,11 +587,12 @@ export const useTalonStore = defineStore('talon', {
       });
     },
     // TODO: Implement fetchInherits()
-    async fetchInherits() {
-      await new Promise((resolve, reject) => {
-        //
-      });
+    async fetchInherents() {
+      const response = await api.get(
+        '/json/homecoming/powers/inherent/index.json'
+      );
     },
+    //#endregion Fetch
     buildEmptyBuild() {
       this.buildSlots.length = 0;
       this.enhancementSlots.length = 0;
@@ -517,12 +627,12 @@ export const useTalonStore = defineStore('talon', {
         }
         buildSlot.power = EmptyPower;
         if (buildSlot.enhancementSlots.length > 0) {
-          buildSlot.enhancementSlots[0].enhancement = EmptyBoost;
+          buildSlot.enhancementSlots[0].boost = EmptyBoost;
         }
       }
       for (const enhancementSlot of this.enhancementSlots) {
         enhancementSlot.assigned = false;
-        enhancementSlot.enhancement = EmptyBoost;
+        enhancementSlot.boost = EmptyBoost;
       }
     },
     addPowerToBuild(selectedPower: Power): BuildSlot | null {
@@ -645,13 +755,13 @@ export const useTalonStore = defineStore('talon', {
       selectedEnhancementSlot: EnhancementSlot,
       selectedBoost: Boost
     ) {
-      selectedEnhancementSlot.enhancement = selectedBoost;
+      selectedEnhancementSlot.boost = selectedBoost;
     },
     clearEnhancementSlotFrom(
       buildSlot: BuildSlot,
       selectedEnhancementSlot: EnhancementSlot
     ) {
-      selectedEnhancementSlot.enhancement = EmptyBoost;
+      selectedEnhancementSlot.boost = EmptyBoost;
     },
     removeEnhancementSlotFrom(
       buildSlot: BuildSlot,
@@ -662,10 +772,22 @@ export const useTalonStore = defineStore('talon', {
 
       selectedEnhancementSlot.level = -1;
       selectedEnhancementSlot.assigned = false;
-      selectedEnhancementSlot.enhancement = EmptyBoost;
+      selectedEnhancementSlot.boost = EmptyBoost;
       buildSlot.enhancementSlots = buildSlot.enhancementSlots.filter(
         (enhancementSlot) => enhancementSlot != selectedEnhancementSlot
       );
+    },
+    getOrigin(name: string) {
+      for (const origin of this.originOptions) {
+        if (origin.label == name) return origin;
+      }
+      return null;
+    },
+    getAlignment(name: string) {
+      for (const alignment of this.alignmentOptions) {
+        if (alignment.label == name) return alignment;
+      }
+      return null;
     },
     // TODO: Add more Boost Types
     getBoost(name: string): Boost | null {
@@ -712,6 +834,7 @@ export const useTalonStore = defineStore('talon', {
       }
       return null;
     },
+    /* Only searches added slots, not free ones per power */
     getEnhancementSlotByLevel(
       level: number,
       isEmpty: boolean
@@ -722,8 +845,8 @@ export const useTalonStore = defineStore('talon', {
           if (!isEmpty) return enhancementSlot;
           if (
             !enhancementSlot.assigned ||
-            enhancementSlot.enhancement == undefined ||
-            enhancementSlot.enhancement.label.length < 1
+            enhancementSlot.boost == undefined ||
+            enhancementSlot.boost.label.length < 1
           )
             return enhancementSlot;
           else continue;
@@ -797,9 +920,24 @@ export const useTalonStore = defineStore('talon', {
     loadMBDObject(mbdObject: any) {
       console.log(mbdObject);
 
+      /* Set UI Origin */
+      const origin = this.getOrigin(mbdObject.Origin);
+      if (!origin) {
+        this.notify('negative', 'Unknown Origin ' + mbdObject.Origin);
+      } else {
+        this.originModel = origin;
+      }
+
+      /* Set Alignment */
+      const alignment = this.getAlignment(mbdObject.Alignment);
+      if (!alignment) {
+        this.notify('negative', 'Unknown Alignment ' + mbdObject.Alignment);
+      } else {
+        this.alignmentModel = alignment;
+      }
+
       /* Set UI Archetype */
       const archetype = this.getArchetype(mbdObject.Class);
-
       if (!archetype) {
         this.notify('negative', 'Unknown Archetype ' + mbdObject.Class);
         return;
@@ -926,12 +1064,79 @@ export const useTalonStore = defineStore('talon', {
             continue;
           }
 
-          enhancementSlot.enhancement = enhancement;
+          enhancementSlot.boost = enhancement;
         }
       }
     },
     createMBDObject() {
-      // TODO: Implement createMBDObject()
+      this.mbdObject.Origin = this.originModel.value;
+      this.mbdObject.Alignment = this.alignmentModel.value;
+
+      this.mbdObject.Class =
+        'Class_' + this.toWordUpperCase(this.archetypeModel.label, ' ', '_');
+
+      this.mbdObject.PowerSets.length = 0;
+      this.mbdObject.PowerSets.push(
+        this.toValueUpperCase(this.primaryModel.value)
+      );
+      this.mbdObject.PowerSets.push(
+        this.toValueUpperCase(this.secondaryModel.value)
+      );
+      this.mbdObject.PowerSets.push('');
+      this.mbdObject.PowerSets.push(
+        this.toValueUpperCase(this.pool1Model.value)
+      );
+      this.mbdObject.PowerSets.push(
+        this.toValueUpperCase(this.pool2Model.value)
+      );
+      this.mbdObject.PowerSets.push(
+        this.toValueUpperCase(this.pool3Model.value)
+      );
+      this.mbdObject.PowerSets.push(
+        this.toValueUpperCase(this.pool4Model.value)
+      );
+      this.mbdObject.PowerSets.push(
+        this.toValueUpperCase(this.epicModel.value)
+      );
+
+      this.mbdObject.PowerEntries.length = 0;
+      for (const buildSlot of this.buildSlots) {
+        const powerEntry = new PowerEntry();
+        powerEntry.PowerName = buildSlot.power.value;
+        powerEntry.Level = buildSlot.level;
+
+        powerEntry.SlotEntries.length = 0;
+        for (const enhancementSlot of buildSlot.enhancementSlots) {
+          let enhancement = null;
+          if (
+            enhancementSlot.boost != null &&
+            //enhancementSlot.assigned &&
+            enhancementSlot.boost.label.length > 0
+          ) {
+            enhancement = new Enhancement();
+            enhancementSlot.level < 1 ? buildSlot.level : enhancementSlot.level;
+            enhancement.Enhancement = enhancementSlot.boost.label;
+          }
+
+          const slotEntry = {
+            Level:
+              enhancementSlot.level < 1
+                ? buildSlot.level
+                : enhancementSlot.level,
+            IsInherent: false,
+            Enhancement: enhancement,
+            FlippedEnhancement: null,
+          };
+
+          slotEntry.Level =
+            enhancementSlot.level < 1 ? buildSlot.level : enhancementSlot.level;
+          powerEntry.SlotEntries.push(slotEntry);
+        }
+
+        this.mbdObject.PowerEntries.push(powerEntry);
+      }
+
+      console.log(this.mbdObject);
     },
   },
 });

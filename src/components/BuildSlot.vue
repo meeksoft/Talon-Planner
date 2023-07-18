@@ -6,24 +6,28 @@
     :v-model="buildSlot"
     active-class="border-accent"
     :active="buildSlot.selected"
+    class="build-slot-item"
   >
-    <q-item-section top class="build-slot-item">
+    <q-item-section top class="build-slot-item-section">
       <q-item-label lines="1" style="margin-left: 2px">
-        <q-item-label style="position: absolute; top: 20%; left: 0">
+        <q-item-label style="position: absolute; top: 10%; left: 0">
           {{ getSlotLevel(buildSlot.level) }}
         </q-item-label>
         <q-btn
-          size="lg"
+          size="xs"
           padding="0"
           flat
           dense
           round
           :icon="buildSlot.power.icon"
           @click.capture.stop="iconClick()"
-        />
+          class="build-slot-icon-button"
+        >
+          <q-tooltip>Click - Remove Power</q-tooltip>
+        </q-btn>
         <span class="text-weight-medium">{{ buildSlot.power.label }}</span>
       </q-item-label>
-      <q-item-label lines="1" style="margin-left: -10px">
+      <q-item-label lines="1" style="margin-left: -10px; padding: 0">
         <q-btn
           v-for="(enhancementSlot, index) in buildSlot.enhancementSlots"
           :key="index"
@@ -39,11 +43,17 @@
           class="build-slot-enhancement-button"
           v-show="buildSlot.power.label.length > 0"
         >
-          <div v-show="enhancementSlot.level > 0">
+          <div v-show="enhancementSlot.level > 0" style="margin-left: -20px">
             {{ enhancementSlot.level }}
           </div>
           <q-tooltip>
-            {{ enhancementSlot.enhancement.label }}
+            {{
+              enhancementSlot.level < 1
+                ? buildSlot.level
+                : enhancementSlot.level
+            }}
+            -
+            {{ enhancementSlot.boost.label }}
           </q-tooltip>
           <enhancement-slot-menu
             :ref="'enhancementSlotMenu' + index"
@@ -113,12 +123,13 @@ export default defineComponent({
     getEnhancementSlotIcon(val) {
       if (
         val < this.buildSlot.enhancementSlots.length &&
-        this.buildSlot.enhancementSlots[val].enhancement.icon.length > 0
+        this.buildSlot.enhancementSlots[val].boost.icon.length > 0
       ) {
-        return this.buildSlot.enhancementSlots[val].enhancement.icon;
+        return this.buildSlot.enhancementSlots[val].boost.icon;
       }
       //return 'add_circle';
-      return 'add_circle_outline';
+      //return 'add_circle_outline';
+      return 'radio_button_unchecked';
     },
     itemClick() {
       if (this.isEmptySlot()) {
@@ -152,9 +163,18 @@ export default defineComponent({
 
 <style scoped>
 .build-slot-item {
+  padding: 4px 8px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+}
+
+.build-slot-item-section {
   page-break-inside: avoid;
   break-inside: avoid;
   -webkit-column-break-inside: avoid;
+}
+
+.build-slot-icon-button {
+  margin-left: 8px;
 }
 
 .border-accent {

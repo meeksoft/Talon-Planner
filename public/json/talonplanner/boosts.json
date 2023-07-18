@@ -13,7 +13,7 @@
     { "name": "Damage", "type": "Enhance Damage", "icon": "IO_Damage.png" },
     {
       "name": "Defense Buff",
-      "type": "Enhance Defense Buff",
+      "type": "Enhance Defense",
       "icon": "IO_Defense_Buff.png"
     },
     {

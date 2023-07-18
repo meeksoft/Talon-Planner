@@ -16,12 +16,34 @@
         <q-btn flat round dense icon="autorenew" @click="newBuildClick()">
           <q-tooltip>New Build</q-tooltip>
         </q-btn>
-        <q-btn flat round dense icon="file_open" @click="openBuild = true">
+        <q-btn
+          flat
+          round
+          dense
+          icon="file_download"
+          @click="exportBuildClick()"
+        >
+          <q-tooltip>Export Build</q-tooltip>
+        </q-btn>
+        <q-btn flat round dense icon="file_open" @click="openBuildClick()">
           <q-tooltip>Open Build<br />Copy Current or Paste New</q-tooltip>
         </q-btn>
-        <q-btn flat round dense icon="upload_file">
-          <q-tooltip>Upload Build from File</q-tooltip>
-        </q-btn>
+        <div class="q-pa-md">
+          <q-file
+            v-model="file"
+            label="Pick"
+            filled
+            clearable
+            accept=".mbd,.mxd"
+            style="max-width: 95px"
+            @update:model-value="handleUpload()"
+          >
+            <template v-slot:prepend>
+              <q-icon name="upload_file" />
+            </template>
+            <q-tooltip>Upload Build from File</q-tooltip>
+          </q-file>
+        </div>
       </q-toolbar>
     </template>
 
@@ -76,6 +98,7 @@
 
 <script>
 import { defineComponent, ref } from 'vue';
+import { exportFile } from 'quasar';
 import { useTalonStore } from 'stores/talon-store';
 import axios from 'axios';
 import BuildSlot from 'components/BuildSlot.vue';
@@ -100,6 +123,7 @@ export default defineComponent({
       store,
       openBuild: ref(false),
       openBuildText: ref(''),
+      file: ref(null),
     };
   },
   mounted() {
@@ -125,11 +149,34 @@ export default defineComponent({
     },
     mouseenter(e, power) {
       if (power == undefined) return;
-      console.log(power);
       this.store.uiSelectedPower = power;
     },
     newBuildClick() {
       this.store.emptyBuild();
+    },
+    exportBuildClick() {
+      this.store.createMBDObject();
+      const status = exportFile(
+        'Talon.mbd',
+        JSON.stringify(this.store.mbdObject, null, 2)
+      );
+      if (status === true) {
+        // browser allowed it
+      } else {
+        // browser denied it
+        this.store.notify('negative', 'Error: ' + status);
+      }
+    },
+    uploadBuildClick() {
+      //
+    },
+    handleUpload() {
+      console.log(this.file);
+    },
+    openBuildClick() {
+      this.openBuild = true;
+      this.store.createMBDObject();
+      this.openBuildText = JSON.stringify(this.store.mbdObject, null, 2);
     },
     updateClick() {
       let build = this.openBuildText.trim();

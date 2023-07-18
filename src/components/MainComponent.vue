@@ -23,10 +23,10 @@
             <template v-slot:header>
               <q-toolbar class="bg-primary text-white q-toolbar">
                 <q-select
-                  :key="store.archetypeModel"
+                  :key="archetypeModel"
                   ref="archetypeSelect"
                   rounded
-                  standout
+                  borderless
                   hide-dropdown-icon
                   v-model="store.archetypeModel"
                   :options="archetypeOptions"
@@ -45,12 +45,15 @@
                         scope.opt.description
                       }}</q-tooltip>
                       <q-item-section avatar>
-                        <q-icon :name="scope.opt.icon" size="xl" />
+                        <q-icon :name="scope.opt.icon" size="56px" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>{{ scope.opt.label }}</q-item-label>
                       </q-item-section>
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="store.archetypeModel.icon" size="xl">
+                    <q-icon :name="store.archetypeModel.icon" size="56px">
                       <q-tooltip>{{ store.archetypeModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
@@ -60,7 +63,7 @@
                   :key="store.primaryModel"
                   ref="primarySelect"
                   rounded
-                  standout
+                  borderless
                   hide-dropdown-icon
                   v-model="store.primaryModel"
                   :options="primaryOptions"
@@ -88,7 +91,7 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="store.primaryModel.icon" size="lg">
+                    <q-icon :name="store.primaryModel.icon" size="xl">
                       <q-tooltip>{{ store.primaryModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
@@ -98,7 +101,7 @@
                   :key="store.secondaryModel"
                   ref="secondarySelect"
                   rounded
-                  standout
+                  borderless
                   hide-dropdown-icon
                   v-model="store.secondaryModel"
                   :options="secondaryOptions"
@@ -125,7 +128,7 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="store.secondaryModel.icon" size="lg">
+                    <q-icon :name="store.secondaryModel.icon" size="xl">
                       <q-tooltip>{{ store.secondaryModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
@@ -135,7 +138,7 @@
                   :key="store.epicModel"
                   ref="epicSelect"
                   rounded
-                  standout
+                  borderless
                   hide-dropdown-icon
                   v-model="store.epicModel"
                   :options="epicOptions"
@@ -162,8 +165,78 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="store.epicModel.icon" size="lg">
+                    <q-icon :name="store.epicModel.icon" size="xl">
                       <q-tooltip>{{ store.epicModel.label }}</q-tooltip>
+                    </q-icon>
+                  </template>
+                </q-select>
+
+                <q-select
+                  :key="store.originModel"
+                  rounded
+                  borderless
+                  hide-dropdown-icon
+                  v-model="store.originModel"
+                  :options="store.originOptions"
+                >
+                  <template v-slot:no-option>
+                    <q-item>
+                      <q-item-section class="text-grey">
+                        No results
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                  <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps">
+                      <q-tooltip max-width="300px">{{
+                        scope.opt.description
+                      }}</q-tooltip>
+                      <q-item-section avatar>
+                        <q-icon :name="scope.opt.icon" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>{{ scope.opt.label }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                  <template v-slot:selected>
+                    <q-icon :name="store.originModel.icon" size="lg">
+                      <q-tooltip>{{ store.originModel.label }}</q-tooltip>
+                    </q-icon>
+                  </template>
+                </q-select>
+
+                <q-select
+                  :key="store.alignmentModel"
+                  rounded
+                  borderless
+                  hide-dropdown-icon
+                  v-model="store.alignmentModel"
+                  :options="store.alignmentOptions"
+                >
+                  <template v-slot:no-option>
+                    <q-item>
+                      <q-item-section class="text-grey">
+                        No results
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                  <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps">
+                      <q-tooltip max-width="300px">{{
+                        scope.opt.description
+                      }}</q-tooltip>
+                      <q-item-section avatar>
+                        <q-icon :name="scope.opt.icon" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>{{ scope.opt.label }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                  <template v-slot:selected>
+                    <q-icon :name="store.alignmentModel.icon" size="lg">
+                      <q-tooltip>{{ store.alignmentModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
                 </q-select>
@@ -183,21 +256,33 @@
                   :key="poolPowersetCard1"
                   :powersets="poolOptions"
                   :selectModel="store.pool1Model"
+                  @onSelectModelUpdate="
+                    val = updateModel(store.pool1Model, val)
+                  "
                 ></powerset-card>
                 <powerset-card
                   :key="poolPowersetCard2"
                   :powersets="poolOptions"
                   :selectModel="store.pool2Model"
+                  @onSelectModelUpdate="
+                    val = updateModel(store.pool2Model, val)
+                  "
                 ></powerset-card>
                 <powerset-card
                   :key="poolPowersetCard3"
                   :powersets="poolOptions"
                   :selectModel="store.pool3Model"
+                  @onSelectModelUpdate="
+                    val = updateModel(store.pool3Model, val)
+                  "
                 ></powerset-card>
                 <powerset-card
                   :key="poolPowersetCard4"
                   :powersets="poolOptions"
                   :selectModel="store.pool4Model"
+                  @onSelectModelUpdate="
+                    val = updateModel(store.pool4Model, val)
+                  "
                 ></powerset-card>
               </div>
             </div>
@@ -305,6 +390,7 @@ export default defineComponent({
     };
 
     const steps = 7;
+    let tempModel = [];
 
     /* BAR needs to track better */
     this.bar.start();
@@ -323,22 +409,21 @@ export default defineComponent({
     });
     await this.store.fetchArchetypes();
     this.archetypeOptions = this.store.archetypes;
+    tempModel = this.store.archetypeModel;
     this.store.archetypeModel = []; //Trigger Refreshes
+    this.store.archetypeModel = tempModel;
 
     notif({
       caption: `${(300 / steps).toFixed(0)}%`,
       message: 'Loading Power sets.',
     });
     await this.store.fetchPowersets();
-    this.store.primaryModel = []; //Trigger Refreshes
-    this.store.secondaryModel = []; //Trigger Refreshes
 
     notif({
       caption: `${(400 / steps).toFixed(0)}%`,
       message: 'Loading Epics.',
     });
     await this.store.fetchEpics();
-    this.store.epicModel = []; //Trigger Refreshes
 
     notif({
       caption: `${(500 / steps).toFixed(0)}%`,
@@ -351,7 +436,7 @@ export default defineComponent({
       caption: `${(600 / steps).toFixed(0)}%`,
       message: 'Loading Inherits.',
     });
-    await this.store.fetchInherits();
+    await this.store.fetchInherents();
 
     notif({
       type: 'positive',
@@ -423,6 +508,9 @@ export default defineComponent({
     },
     updateEpic(powerset) {
       this.epicSelected = powerset;
+    },
+    updateModel(model, value) {
+      model = value;
     },
   },
 });

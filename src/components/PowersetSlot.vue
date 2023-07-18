@@ -15,7 +15,7 @@
       <q-btn
         class=""
         v-show="$q.platform.is.mobile || $q.screen.gt.md"
-        size="lg"
+        size="md"
         padding="none"
         flat
         dense

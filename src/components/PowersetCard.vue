@@ -8,6 +8,7 @@
 <template>
   <q-list bordered class="rounded-borders powerset-card-list">
     <q-expansion-item
+      ref="PowersetExpansionItem"
       dense
       dense-toggle
       expand-separator
@@ -110,33 +111,54 @@ export default defineComponent({
     const store = useTalonStore();
     const powers = [];
 
+    const powersetModel = ref({ icon: '', label: 'Select Set' });
+    const powersetPowersModel = ref(null);
+
     return {
       store,
       powers,
-      powersetModelHolder: ref({ icon: '', label: 'Select Set' }),
-      powersetPowersModel: ref(null),
+      powersetModel,
+      powersetPowersModel,
     };
   },
   mounted() {
     //
   },
-  computed: {
-    powersetModel: {
-      get() {
-        if (this.selectModel != undefined && this.selectModel != null)
-          return this.selectModel;
-        return this.powersetModelHolder;
-      },
-      set(value) {
-        this.powersetModelHolder = value;
-      },
-    },
-  },
+  // computed: {
+  //   powersetModel: {
+  //     get() {
+  //       if (this.selectModel != undefined && this.selectModel != null) {
+  //         return this.selectModel;
+  //       }
+  //       return this.powersetModelHolder;
+  //     },
+  //     // set(value) {
+  //     //   console.log('set');
+  //     //   console.log(value);
+  //     //   console.log(this.selectModel);
+  //     //   console.log(this.powersetModelHolder);
+  //     //   if (this.selectModel != undefined && this.selectModel != null) {
+  //     //     console.log('1');
+  //     //     this.selectModel = value;
+  //     //     return;
+  //     //   }
+  //     //   console.log('2');
+  //     //   this.powersetModelHolder = value;
+  //     // },
+  //   },
+  // },
   watch: {
     selectModel: {
       deep: true,
       handler: function () {
+        this.powersetModel = this.selectModel;
         this.updatePowerset(this.selectModel);
+      },
+    },
+    powersetModel: {
+      deep: true,
+      handler: function () {
+        this.$refs.PowersetExpansionItem.show();
       },
     },
   },
@@ -158,8 +180,12 @@ export default defineComponent({
       this.store.uiSelectedPower = power;
     },
     updatePowerset(powerset) {
+      console.log('a');
       this.powers = powerset.powers;
       this.powersetPowersModel = []; //Trigger refresh
+    },
+    onSelectModelUpdate() {
+      this.$emit('onSelectModelUpdate', this.powersetModel);
     },
   },
 });

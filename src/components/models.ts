@@ -1,4 +1,6 @@
 /* Constants (Our feeble attempt) */
+export const TALONPLANNER_VERSION = '1.0.00';
+
 export const PowersetType = {
   ANY: 0,
   PRIMARY: 1,
@@ -54,13 +56,13 @@ export const EmptyPower = new Power();
 export interface IEnhancementSlot {
   level: number; //The level of the enhancement slot
   assigned: boolean; //Is added to a power slot?
-  enhancement: Boost;
+  boost: Boost;
 }
 
 export class EnhancementSlot implements IEnhancementSlot {
   level = -1;
   assigned = false;
-  enhancement = EmptyBoost;
+  boost = EmptyBoost;
 }
 
 export interface IBuildSlot {
@@ -134,14 +136,14 @@ export class BoostGroup implements IBoostGroup {
 }
 
 export interface IPowerset {
-  label: string;
-  value: string;
-  description: string;
-  icon: string;
-  powersetFolder: string; //Main folder; blaster_ranged
-  powerFolder: string; //Power's folder; assault_rifle
-  powersetType: number;
-  powers: Array<Power>;
+  label?: string;
+  value?: string;
+  description?: string;
+  icon?: string;
+  powersetFolder?: string; //Main folder; blaster_ranged
+  powerFolder?: string; //Power's folder; assault_rifle
+  powersetType?: number;
+  powers?: Array<Power>;
 }
 
 export class Powerset {
@@ -153,20 +155,26 @@ export class Powerset {
   powerFolder = '';
   powersetType = 0;
   powers = [] as Power[];
+
+  constructor(params: IPowerset = {} as IPowerset) {
+    this.label = params.label ?? '';
+    this.icon = params.icon ?? '';
+    this.powers = params.powers ?? ([] as Power[]);
+  }
 }
 
 export interface IArchetype {
-  label: string;
-  value: string;
-  icon: string;
-  primary: string;
-  secondary: string;
-  description: string;
-  brief: string;
-  rounded: boolean;
-  primaryPowersets: Array<Powerset>;
-  secondaryPowersets: Array<Powerset>;
-  epicPowersets: Array<Powerset>;
+  label?: string;
+  value?: string;
+  icon?: string;
+  primary?: string;
+  secondary?: string;
+  description?: string;
+  brief?: string;
+  rounded?: boolean;
+  primaryPowersets?: Array<Powerset>;
+  secondaryPowersets?: Array<Powerset>;
+  epicPowersets?: Array<Powerset>;
 }
 
 export class Archetype implements IArchetype {
@@ -181,4 +189,117 @@ export class Archetype implements IArchetype {
   primaryPowersets = [] as Powerset[];
   secondaryPowersets = [] as Powerset[];
   epicPowersets = [] as Powerset[];
+
+  constructor(params: IArchetype = {} as IArchetype) {
+    this.label = params.label ?? '';
+    this.icon = params.icon ?? '';
+  }
 }
+
+//#region MBD Object
+
+export interface IEnhancement {
+  Enhancement: string;
+  Grade: string;
+  IoLevel: number;
+  RelativeLevel: string;
+  Obtained: boolean;
+}
+
+export class Enhancement implements IEnhancement {
+  Enhancement = '';
+  Grade = 'None';
+  IoLevel = 49;
+  RelativeLevel = 'Even';
+  Obtained = false;
+}
+export interface ISlotEntry {
+  Level: number;
+  IsInherent: boolean;
+  Enhancement: Enhancement | null;
+  FlippedEnhancement: Enhancement | null;
+}
+
+export class SlotEntryWithEnhancement implements ISlotEntry {
+  Level = 0;
+  IsInherent = false;
+  Enhancement = new Enhancement();
+  FlippedEnhancement = null;
+}
+export class SlotEntry implements ISlotEntry {
+  Level = 0;
+  IsInherent = false;
+  Enhancement = null;
+  FlippedEnhancement = null;
+}
+
+// TODO: SubPowerEntries
+export interface ISubPowerEntry {
+  PowerName: string; // Place Holder.
+}
+
+export class SubPowerEntry implements ISubPowerEntry {
+  PowerName = '';
+}
+
+export interface IPowerEntry {
+  PowerName: string;
+  Level: number;
+  StatInclude: boolean;
+  ProcInclude: boolean;
+  VariableValue: number;
+  InherentSlotsUsed: number;
+  SubPowerEntries: Array<SubPowerEntry>;
+  SlotEntries: Array<ISlotEntry>;
+}
+
+export class PowerEntry implements IPowerEntry {
+  PowerName = '';
+  Level = 0;
+  StatInclude = false;
+  ProcInclude = false;
+  VariableValue = 0;
+  InherentSlotsUsed = 0;
+  SubPowerEntries = [] as SubPowerEntry[];
+  SlotEntries = [] as ISlotEntry[];
+}
+
+export interface IBuiltWith {
+  App: string;
+  Version: string;
+  Database: string;
+  DatabaseVersion: string;
+}
+
+export class BuiltWith implements IBuiltWith {
+  App = 'Talon Planner ' + TALONPLANNER_VERSION;
+  Version = '3.5.5.10'; //Mids Reborn Version
+  Database = 'Homecoming';
+  DatabaseVersion = '2023.5.544';
+}
+
+export interface IMBDObject {
+  BuiltWith: BuiltWith;
+  Class: string;
+  Origin: string;
+  Alignment: string;
+  Name: string;
+  Comment: string;
+  PowerSets: Array<string>;
+  LastPower: number;
+  PowerEntries: Array<PowerEntry>;
+}
+
+export class MBDObject implements IMBDObject {
+  BuiltWith = new BuiltWith();
+  Class = '';
+  Origin = 'Natural';
+  Alignment = 'Hero';
+  Name = '';
+  Comment = '';
+  PowerSets = [] as string[];
+  LastPower = 25;
+  PowerEntries = [] as PowerEntry[];
+}
+
+//#endregion MBD Object
