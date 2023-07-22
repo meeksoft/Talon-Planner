@@ -71,14 +71,16 @@ export interface IBuildSlot {
   powersetType: number;
   enhancementSlots: Array<EnhancementSlot>;
   selected: boolean;
+  disabled: boolean;
 }
 
 export class BuildSlot implements IBuildSlot {
   level = -1;
   power = EmptyPower;
-  powersetType = 0;
+  powersetType = 0; //Specify if it has to only accept powers of this type.
   enhancementSlots = [] as EnhancementSlot[];
   selected = false;
+  disabled = false;
 }
 
 export const EmptyBuildSlot = new BuildSlot();

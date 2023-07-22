@@ -20,10 +20,8 @@ import {
   EmptyBuildSlot,
   MBDObject,
   PowerEntry,
-  SlotEntry,
   Enhancement,
-  ISlotEntry,
-  SlotEntryWithEnhancement,
+  PowersetType,
 } from 'src/components/models';
 
 export const useTalonStore = defineStore('talon', {
@@ -37,7 +35,6 @@ export const useTalonStore = defineStore('talon', {
 
     uiSelectedPower: EmptyPower, //MouseEnter Power
     uiSelectedBuildSlot: EmptyBuildSlot, //Selected Build Slot.
-    levels: [], //Loaded from leveling.json; Used to help build Build
 
     fileTypeOptions: [
       { label: 'MBD 3.5.5.7', value: 'MBD' },
@@ -164,12 +161,14 @@ export const useTalonStore = defineStore('talon', {
     /* Build */
     buildSlots: new Array<BuildSlot>(), //The Build.
     enhancementSlots: new Array<EnhancementSlot>(), //The Build
+    inherentSlots: new Array<BuildSlot>(), //The Build
 
     /* Database */
     genericBoosts: new Array<Boost>(), //A Lookup for Generic Boosts.
     boostGroups: new Array<BoostGroup>(), //All the Boostgroups and sets and their boosts.
     archetypes: new Array<Archetype>(), //Archetypes->powersets=>powers
     pools: new Array<Powerset>(),
+    inherents: new Array<Powerset>(),
 
     /* Export */
     mbdObject: new MBDObject(), //Reuseable.
@@ -438,7 +437,7 @@ export const useTalonStore = defineStore('talon', {
             '/index.json'
         )
         .then((res) => {
-          this.setPowersetIcon(powerset, res.data.icon);
+          this.setPowersetIcon(powerset);
           powerset.description = res.data.display_help;
 
           /* for each power */
@@ -588,17 +587,49 @@ export const useTalonStore = defineStore('talon', {
     },
     // TODO: Implement fetchInherits()
     async fetchInherents() {
+      this.inherents.length = 0;
       const response = await api.get(
         '/json/homecoming/powers/inherent/index.json'
       );
+
+      for (
+        let index = 0;
+        index < response.data.powerset_names.length;
+        index++
+      ) {
+        const a = response.data.powerset_names[index].split('.');
+        const powersetFolder = a[0];
+        const powerFolder = a[1];
+
+        const powerset = new Powerset();
+        powerset.label = response.data.powerset_display_names[index];
+        powerset.value = response.data.powerset_names[index];
+        powerset.powersetFolder = powersetFolder;
+        powerset.powerFolder = powerFolder;
+        powerset.icon = 'golf_course';
+        powerset.powersetType = 5;
+
+        this.inherents.push(powerset);
+      }
+
+      for (const powerset of this.inherents) {
+        await this.fetchPowerset(powerset);
+      }
+
+      //Sort Array.
+      this.inherents = this.inherents.sort((a1, a2) => {
+        if (a1.label > a2.label) return 1;
+        if (a2.label > a1.label) return -1;
+        return 0;
+      });
     },
     //#endregion Fetch
-    buildEmptyBuild() {
+    buildEmptyBuild(levels: Array<any>, inherentsList: Array<string>) {
       this.buildSlots.length = 0;
       this.enhancementSlots.length = 0;
 
-      for (let index = 0; index < this.levels.length; index++) {
-        const level = this.levels[index];
+      for (let index = 0; index < levels.length; index++) {
+        const level = levels[index];
 
         /* Get all the power Slots */
         for (let numPowers = 0; numPowers < level['powers']; numPowers++) {
@@ -619,6 +650,31 @@ export const useTalonStore = defineStore('talon', {
           this.enhancementSlots.push(enhancementSlot);
         }
       }
+
+      this.inherentSlots.length = 0;
+      for (const inherentItem of inherentsList) {
+        const buildSlot = new BuildSlot();
+        buildSlot.disabled = true;
+        buildSlot.powersetType = 5;
+        const power = new Power();
+        power.value = inherentItem;
+        buildSlot.power = power;
+        this.inherentSlots.push(buildSlot);
+      }
+    },
+    mapBuildInherents() {
+      for (const buildSlot of this.inherentSlots) {
+        for (const powerset of this.inherents) {
+          for (const power of powerset.powers) {
+            if (power.value == buildSlot.power.value) {
+              buildSlot.disabled = false;
+              buildSlot.level = power.level;
+              this.assignPowerToBuildSlot(power, buildSlot);
+            }
+          }
+          if (!buildSlot.disabled) break;
+        }
+      }
     },
     emptyBuild() {
       for (const buildSlot of this.buildSlots) {
@@ -626,6 +682,13 @@ export const useTalonStore = defineStore('talon', {
           buildSlot.power.assigned = false;
         }
         buildSlot.power = EmptyPower;
+        if (buildSlot.enhancementSlots.length > 0) {
+          buildSlot.enhancementSlots[0].boost = EmptyBoost;
+        }
+      }
+
+      /* Only remove enhancement slots, not powers */
+      for (const buildSlot of this.inherentSlots) {
         if (buildSlot.enhancementSlots.length > 0) {
           buildSlot.enhancementSlots[0].boost = EmptyBoost;
         }
@@ -854,7 +917,7 @@ export const useTalonStore = defineStore('talon', {
       }
       return null;
     },
-    setPowersetIcon(powerset: Powerset, name: string) {
+    setPowersetIcon(powerset: Powerset) {
       /* For powersets we ignore the entry
              and instead build using the powerset name */
       let icon = powerset.powerFolder + '_Set.png';
@@ -915,6 +978,14 @@ export const useTalonStore = defineStore('talon', {
           return power;
         }
       }
+      for (const powerset of this.inherents) {
+        for (const power of powerset.powers) {
+          if (power.value == selectedPowerValue) {
+            return power;
+          }
+        }
+      }
+
       return null;
     },
     loadMBDObject(mbdObject: any) {
@@ -1019,10 +1090,23 @@ export const useTalonStore = defineStore('talon', {
           continue;
         }
 
-        const buildSlot = this.getBuildSlotByLevel(
-          powerEntry.Level,
-          powerEntry.Level == 1
-        );
+        let buildSlot = null;
+        if (power.powersetType == 5) {
+          for (const iSlot of this.inherentSlots) {
+            if (iSlot.power == power) {
+              buildSlot = iSlot;
+              break;
+            }
+          }
+        } else {
+          buildSlot = this.getBuildSlotByLevel(
+            powerEntry.Level,
+            powerEntry.Level == 1
+          );
+
+          if (buildSlot != null) this.assignPowerToBuildSlot(power, buildSlot);
+        }
+
         if (buildSlot == null) {
           this.notify(
             'negative',
@@ -1030,8 +1114,6 @@ export const useTalonStore = defineStore('talon', {
           );
           continue;
         }
-
-        this.assignPowerToBuildSlot(power, buildSlot);
 
         /* Assign Enhancement Slots */
         for (let i = 0; i < powerEntry.SlotEntries.length; i++) {
@@ -1101,42 +1183,48 @@ export const useTalonStore = defineStore('talon', {
 
       this.mbdObject.PowerEntries.length = 0;
       for (const buildSlot of this.buildSlots) {
-        const powerEntry = new PowerEntry();
-        powerEntry.PowerName = buildSlot.power.value;
-        powerEntry.Level = buildSlot.level;
-
-        powerEntry.SlotEntries.length = 0;
-        for (const enhancementSlot of buildSlot.enhancementSlots) {
-          let enhancement = null;
-          if (
-            enhancementSlot.boost != null &&
-            //enhancementSlot.assigned &&
-            enhancementSlot.boost.label.length > 0
-          ) {
-            enhancement = new Enhancement();
-            enhancementSlot.level < 1 ? buildSlot.level : enhancementSlot.level;
-            enhancement.Enhancement = enhancementSlot.boost.label;
-          }
-
-          const slotEntry = {
-            Level:
-              enhancementSlot.level < 1
-                ? buildSlot.level
-                : enhancementSlot.level,
-            IsInherent: false,
-            Enhancement: enhancement,
-            FlippedEnhancement: null,
-          };
-
-          slotEntry.Level =
-            enhancementSlot.level < 1 ? buildSlot.level : enhancementSlot.level;
-          powerEntry.SlotEntries.push(slotEntry);
-        }
-
+        const powerEntry = this.createMBDPowerEntry(buildSlot);
+        this.mbdObject.PowerEntries.push(powerEntry);
+      }
+      for (const buildSlot of this.inherentSlots) {
+        const powerEntry = this.createMBDPowerEntry(buildSlot);
         this.mbdObject.PowerEntries.push(powerEntry);
       }
 
       console.log(this.mbdObject);
+    },
+    createMBDPowerEntry(buildSlot: BuildSlot): PowerEntry {
+      const powerEntry = new PowerEntry();
+      powerEntry.PowerName = buildSlot.power.value;
+      powerEntry.Level = buildSlot.level;
+
+      powerEntry.SlotEntries.length = 0;
+      for (const enhancementSlot of buildSlot.enhancementSlots) {
+        let enhancement = null;
+        if (
+          enhancementSlot.boost != null &&
+          //enhancementSlot.assigned &&
+          enhancementSlot.boost.label.length > 0
+        ) {
+          enhancement = new Enhancement();
+          enhancementSlot.level < 1 ? buildSlot.level : enhancementSlot.level;
+          enhancement.Enhancement = enhancementSlot.boost.label;
+        }
+
+        const slotEntry = {
+          Level:
+            enhancementSlot.level < 1 ? buildSlot.level : enhancementSlot.level,
+          IsInherent: false,
+          Enhancement: enhancement,
+          FlippedEnhancement: null,
+        };
+
+        slotEntry.Level =
+          enhancementSlot.level < 1 ? buildSlot.level : enhancementSlot.level;
+        powerEntry.SlotEntries.push(slotEntry);
+      }
+
+      return powerEntry;
     },
   },
 });

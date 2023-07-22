@@ -3,18 +3,19 @@
     clickable
     v-ripple
     @click.prevent="itemClick()"
+    @mouseenter="mouseenter($event, power)"
     :v-model="buildSlot"
     active-class="border-accent"
     :active="buildSlot.selected"
     class="build-slot-item"
   >
-    <q-item-section top class="build-slot-item-section">
-      <q-item-label lines="1" style="margin-left: 2px">
-        <q-item-label style="position: absolute; top: 10%; left: 0">
+    <div class="build-slot-item-section no-page-break">
+      <div lines="1" class="build-slot-line-main">
+        <q-item-label style="position: absolute; left: -5px; top: 4px">
           {{ getSlotLevel(buildSlot.level) }}
         </q-item-label>
         <q-btn
-          size="xs"
+          size="md"
           padding="0"
           flat
           dense
@@ -26,67 +27,62 @@
           <q-tooltip>Click - Remove Power</q-tooltip>
         </q-btn>
         <span class="text-weight-medium">{{ buildSlot.power.label }}</span>
-      </q-item-label>
-      <q-item-label lines="1" style="margin-left: -10px; padding: 0">
-        <q-btn
-          v-for="(enhancementSlot, index) in buildSlot.enhancementSlots"
-          :key="index"
-          :v-model="enhancementSlot"
-          rounded
-          flat
-          right-click
-          color="primary"
-          :icon="getEnhancementSlotIcon(index)"
-          size="md"
-          padding="none"
-          @click.capture.stop="enClick(index)"
-          class="build-slot-enhancement-button"
-          v-show="buildSlot.power.label.length > 0"
-        >
-          <div v-show="enhancementSlot.level > 0" style="margin-left: -20px">
+      </div>
+    </div>
+  </q-item>
+  <div style="position: absolute; margin-top: -24px">
+    <div
+      v-for="(enhancementSlot, index) in buildSlot.enhancementSlots"
+      :key="index"
+      :v-model="enhancementSlot"
+      v-show="buildSlot.power.label.length > 0"
+      class="build-slot-enhancement-slot"
+    >
+      <q-btn
+        rounded
+        right-click
+        color="black"
+        size="lg"
+        padding="none"
+        @click.capture.stop="enClick(index)"
+        class="build-slot-enhancement-button"
+      >
+        <q-avatar :size="$q.screen.gt.sm ? 'md' : 'sm'">
+          <img
+            v-show="enhancementSlot.boost.label.length > 0"
+            :src="getEnhancementSlotIcon(index)"
+          />
+          <div
+            v-show="
+              enhancementSlot.boost.label.length < 1 &&
+              enhancementSlot.level > 0
+            "
+            class="build-slot-enhancement-label"
+          >
             {{ enhancementSlot.level }}
           </div>
-          <q-tooltip>
-            {{
-              enhancementSlot.level < 1
-                ? buildSlot.level
-                : enhancementSlot.level
-            }}
-            -
-            {{ enhancementSlot.boost.label }}
-          </q-tooltip>
-          <enhancement-slot-menu
-            :ref="'enhancementSlotMenu' + index"
-            :buildSlot="buildSlot"
-            :enhancementSlot="enhancementSlot"
-          ></enhancement-slot-menu>
-          <!-- <q-menu :ref="'enhancementSlotMenu' + index">
-            <q-item clickable v-close-popup>
-              <q-item-section avatar
-                ><q-icon name="delete"></q-icon>
-              </q-item-section>
-              <q-item-section>Delete Image</q-item-section>
-            </q-item>
-          </q-menu> -->
-          <!-- <q-popup-proxy context-menu>
-            <q-banner>
-              <template v-slot:avatar>
-                <q-icon name="signal_wifi_off" color="primary" />
-              </template>
-              You have lost connection to the internet. This app is offline.
-            </q-banner>
-          </q-popup-proxy> -->
-        </q-btn>
-      </q-item-label>
-    </q-item-section>
-  </q-item>
+        </q-avatar>
+        <q-tooltip>
+          {{
+            enhancementSlot.level < 1 ? buildSlot.level : enhancementSlot.level
+          }}
+          -
+          {{ enhancementSlot.boost.label }}
+        </q-tooltip>
+        <enhancement-slot-menu
+          :ref="'enhancementSlotMenu' + index"
+          :buildSlot="buildSlot"
+          :enhancementSlot="enhancementSlot"
+        ></enhancement-slot-menu>
+      </q-btn>
+    </div>
+  </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
 import { useTalonStore } from 'stores/talon-store';
 import EnhancementSlotMenu from 'components/EnhancementSlotMenu.vue';
-
 export default defineComponent({
   name: 'BuildSlot',
   components: { EnhancementSlotMenu },
@@ -109,6 +105,10 @@ export default defineComponent({
     };
   },
   methods: {
+    mouseenter(e, power) {
+      if (power == undefined) return;
+      this.store.uiSelectedPower = power;
+    },
     getSlotLevel(val) {
       return val + (this.zeroIndex ? 1 : 0);
     },
@@ -125,7 +125,7 @@ export default defineComponent({
         val < this.buildSlot.enhancementSlots.length &&
         this.buildSlot.enhancementSlots[val].boost.icon.length > 0
       ) {
-        return this.buildSlot.enhancementSlots[val].boost.icon;
+        return this.buildSlot.enhancementSlots[val].boost.icon.substring(4);
       }
       //return 'add_circle';
       //return 'add_circle_outline';
@@ -162,19 +162,48 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.build-slot-item {
-  padding: 4px 8px;
-  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
-}
-
-.build-slot-item-section {
+.no-page-break {
   page-break-inside: avoid;
   break-inside: avoid;
   -webkit-column-break-inside: avoid;
 }
 
+.build-slot-item {
+  padding: 0;
+  margin: 0 0 16px 0;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+  border-radius: 28px;
+  background-image: linear-gradient(#01579b, #b3e5fc);
+  min-height: 28px;
+}
+
+.build-slot-item-section {
+  width: 100%;
+}
+
+.build-slot-line-main {
+  margin: 2px 0 0 15px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 .build-slot-icon-button {
-  margin-left: 8px;
+  margin-left: 0px;
+}
+
+.build-slot-line-1 {
+  padding: 0;
+  margin-top: -3px;
+}
+
+.build-slot-enhancement-slot {
+  /* width: 34px; */
+  float: left;
+}
+
+.build-slot-enhancement-button {
+  float: left;
 }
 
 .border-accent {
@@ -183,5 +212,24 @@ export default defineComponent({
   box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
   border-left: none;
   border-top: none;
+}
+
+@media (min-width: 450px) {
+  .build-slot-icon-button {
+    display: none;
+  }
+}
+
+@media (min-width: 600px) {
+  .build-slot-icon-button {
+    display: unset;
+  }
+}
+
+@media (min-width: 768px) {
+  .build-slot-line-main {
+    margin: 2px 0 0 10px;
+    font-size: 12px;
+  }
 }
 </style>

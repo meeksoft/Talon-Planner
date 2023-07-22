@@ -9,7 +9,7 @@
     />
     <div class="col-12">
       <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="col-xs-12 col-sm-5 col-md-5">
           <q-expansion-item
             dense
             dense-toggle
@@ -91,7 +91,7 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="store.primaryModel.icon" size="xl">
+                    <q-icon :name="store.primaryModel.icon" size="lg">
                       <q-tooltip>{{ store.primaryModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
@@ -128,7 +128,7 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="store.secondaryModel.icon" size="xl">
+                    <q-icon :name="store.secondaryModel.icon" size="lg">
                       <q-tooltip>{{ store.secondaryModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
@@ -165,7 +165,7 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="store.epicModel.icon" size="xl">
+                    <q-icon :name="store.epicModel.icon" size="lg">
                       <q-tooltip>{{ store.epicModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
@@ -200,7 +200,7 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="store.originModel.icon" size="lg">
+                    <q-icon :name="store.originModel.icon" size="md">
                       <q-tooltip>{{ store.originModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
@@ -235,7 +235,7 @@
                     </q-item>
                   </template>
                   <template v-slot:selected>
-                    <q-icon :name="store.alignmentModel.icon" size="lg">
+                    <q-icon :name="store.alignmentModel.icon" size="md">
                       <q-tooltip>{{ store.alignmentModel.label }}</q-tooltip>
                     </q-icon>
                   </template>
@@ -243,47 +243,60 @@
               </q-toolbar>
             </template>
 
-            <div class="row">
-              <div class="col-xs-12 col-sm-4 first-group-column">
+            <div class="row num-columns first-group-body">
+              <div class="col-xs-12 col-xsm-6">
                 <powerset-card :powerset="primarySelected"></powerset-card>
               </div>
-              <div class="col-xs-12 col-sm-4 first-group-column">
+              <div class="col-xs-12 col-xsm-6">
                 <powerset-card :powerset="secondarySelected"></powerset-card>
               </div>
-              <div class="col-xs-12 col-sm-4 first-group-column-long">
+              <div class="col-xs-12 col-xsm-6">
                 <powerset-card :powerset="epicSelected"></powerset-card>
-                <powerset-card
-                  :key="poolPowersetCard1"
-                  :powersets="poolOptions"
-                  :selectModel="store.pool1Model"
-                  @onSelectModelUpdate="
-                    val = updateModel(store.pool1Model, val)
-                  "
-                ></powerset-card>
-                <powerset-card
-                  :key="poolPowersetCard2"
-                  :powersets="poolOptions"
-                  :selectModel="store.pool2Model"
-                  @onSelectModelUpdate="
-                    val = updateModel(store.pool2Model, val)
-                  "
-                ></powerset-card>
-                <powerset-card
-                  :key="poolPowersetCard3"
-                  :powersets="poolOptions"
-                  :selectModel="store.pool3Model"
-                  @onSelectModelUpdate="
-                    val = updateModel(store.pool3Model, val)
-                  "
-                ></powerset-card>
-                <powerset-card
-                  :key="poolPowersetCard4"
-                  :powersets="poolOptions"
-                  :selectModel="store.pool4Model"
-                  @onSelectModelUpdate="
-                    val = updateModel(store.pool4Model, val)
-                  "
-                ></powerset-card>
+              </div>
+              <div class="col-xs-12 col-xsm-6">
+                <div class="col-xs-12">
+                  <powerset-card
+                    :key="poolPowersetCard1"
+                    :powersets="poolOptions"
+                    :selectModel="store.pool1Model"
+                    @onSelectModelUpdate="
+                      val = updateModel(store.pool1Model, val)
+                    "
+                  ></powerset-card>
+                </div>
+                <div class="col-xs-12">
+                  <powerset-card
+                    :key="poolPowersetCard2"
+                    :powersets="poolOptions"
+                    :selectModel="store.pool2Model"
+                    @onSelectModelUpdate="
+                      val = updateModel(store.pool2Model, val)
+                    "
+                  ></powerset-card>
+                </div>
+                <div class="col-xs-12">
+                  <powerset-card
+                    :key="poolPowersetCard3"
+                    :powersets="poolOptions"
+                    :selectModel="store.pool3Model"
+                    @onSelectModelUpdate="
+                      val = updateModel(store.pool3Model, val)
+                    "
+                  ></powerset-card>
+                </div>
+                <div class="col-xs-12">
+                  <powerset-card
+                    :key="poolPowersetCard4"
+                    :powersets="poolOptions"
+                    :selectModel="store.pool4Model"
+                    @onSelectModelUpdate="
+                      val = updateModel(store.pool4Model, val)
+                    "
+                  ></powerset-card>
+                </div>
+                <!-- <div class="col-xs-12 first-group-column">
+                <powerset-card :powerset="inherentSelected"></powerset-card>
+              </div -->
               </div>
             </div>
           </q-expansion-item>
@@ -294,9 +307,13 @@
           ></multi-viewer>
         </div>
 
-        <div class="col-xs-12 col-sm-6 col-md-6">
-          <multi-viewer title="Build" groupName="buildGroup"></multi-viewer>
-          <multi-viewer title="Details" groupName="detailsGroup"></multi-viewer>
+        <div class="col-xs-12 col-sm-7 col-md-7">
+          <multi-viewer title="Build" groupName="secondGroup"></multi-viewer>
+          <multi-viewer
+            title="Details"
+            groupName="secondGroup"
+            :defaultOpened="false"
+          ></multi-viewer>
         </div>
       </div>
     </div>
@@ -374,6 +391,7 @@ export default defineComponent({
       primarySelected: ref({ icon: '', label: 'None' }),
       secondarySelected: ref({ icon: '', label: 'None' }),
       epicSelected: ref({ icon: '', label: 'None' }),
+      inherentSelected: ref({ icon: '', label: 'None' }), //For Testing.
       pt,
       ...useClickCount(),
       ...useDisplayTodo(toRef(props, 'todos')),
@@ -389,7 +407,7 @@ export default defineComponent({
       message: '',
     };
 
-    const steps = 7;
+    const steps = 8;
     let tempModel = [];
 
     /* BAR needs to track better */
@@ -432,11 +450,21 @@ export default defineComponent({
     await this.store.fetchPools();
     this.poolOptions = this.store.pools;
 
+    // TODO: Temporary Powers
     notif({
       caption: `${(600 / steps).toFixed(0)}%`,
+      message: 'Loading Temporary.',
+    });
+
+    notif({
+      caption: `${(700 / steps).toFixed(0)}%`,
       message: 'Loading Inherits.',
     });
     await this.store.fetchInherents();
+    this.inherentSelected = this.store.inherents[0];
+    //console.log(this.store.inherents);
+
+    this.store.mapBuildInherents(); //Add Inherents to Build.
 
     notif({
       type: 'positive',
@@ -521,14 +549,37 @@ export default defineComponent({
   height: 60px;
 }
 
-@media screen and (min-width: 600px) {
-  .first-group-column {
-    height: calc(60vh - 110px);
-    overflow: auto;
+.num-columns {
+  display: block;
+  column-gap: 0;
+  columns: 1;
+}
+
+@media screen and (min-width: 450px) {
+  .num-columns {
+    columns: 2;
   }
-  .first-group-column-long {
+}
+
+@media screen and (min-width: 600px) {
+  .num-columns {
+    columns: auto;
+  }
+
+  .first-group-body {
     height: calc(100vh - 170px);
     overflow: auto;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .num-columns {
+    columns: 2;
+  }
+}
+@media screen and (min-width: 1440px) {
+  .num-columns {
+    columns: 2;
   }
 }
 </style>

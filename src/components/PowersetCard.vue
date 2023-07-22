@@ -6,7 +6,7 @@
  | Assign property selectModel to: assign dropdown, and trigger actions.
  ---------------------------------------->
 <template>
-  <q-list bordered class="rounded-borders powerset-card-list">
+  <q-list bordered class="rounded-borders powerset-card-list no-page-break">
     <q-expansion-item
       ref="PowersetExpansionItem"
       dense
@@ -18,6 +18,7 @@
       :label="powerset ? powerset.label : powersetModel.label"
       header-class="bg-light-blue text-white"
       expand-icon-class="text-white"
+      class="power-set-card-expansion-item"
     >
       <template v-slot:header v-if="!powerset">
         <q-select
@@ -49,7 +50,10 @@
             </q-item>
           </template>
           <template v-slot:selected>
-            <div style="margin-top: -30px" class="text-white">
+            <div
+              style="margin-top: -30px; text-wrap: nowrap; overflow: hidden"
+              class="text-white"
+            >
               <q-icon :name="powersetModel.icon" size="sm">
                 <q-tooltip>{{ powersetModel.label }}</q-tooltip>
               </q-icon>
@@ -96,6 +100,7 @@ import PowersetSlot from 'components/PowersetSlot.vue';
 export default defineComponent({
   name: 'PowersetCard',
   components: { PowersetSlot },
+  emits: ['onSelectModelUpdate'],
   props: {
     powersets: {
       type: Array,
@@ -111,7 +116,7 @@ export default defineComponent({
     const store = useTalonStore();
     const powers = [];
 
-    const powersetModel = ref({ icon: '', label: 'Select Set' });
+    const powersetModel = ref({ icon: '', label: 'Select' });
     const powersetPowersModel = ref(null);
 
     return {
@@ -180,7 +185,7 @@ export default defineComponent({
       this.store.uiSelectedPower = power;
     },
     updatePowerset(powerset) {
-      console.log('a');
+      console.log('updatePowerset');
       this.powers = powerset.powers;
       this.powersetPowersModel = []; //Trigger refresh
     },
@@ -192,6 +197,17 @@ export default defineComponent({
 </script>
 
 <style>
+.no-page-break {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  /* width: 100%; */
+}
+
+.power-set-card-expansion-item .q-item {
+  padding: 2px 4px;
+}
+
 .powerset-card-list .q-item__section--avatar {
   min-width: 0px;
 }

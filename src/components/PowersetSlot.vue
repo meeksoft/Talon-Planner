@@ -14,7 +14,6 @@
       </q-item-label>
       <q-btn
         class=""
-        v-show="$q.platform.is.mobile || $q.screen.gt.md"
         size="md"
         padding="none"
         flat
@@ -31,12 +30,7 @@
       <q-item-label lines="1">
         <span class="text-weight-medium">{{ power.label }}</span>
       </q-item-label>
-      <q-item-label
-        caption
-        lines="2"
-        style="margin: 0"
-        v-show="$q.platform.is.mobile || $q.screen.gt.md"
-      >
+      <q-item-label caption lines="2" style="margin: 0">
         <q-btn
           v-for="(boost, index) in power.boosts"
           :key="index"

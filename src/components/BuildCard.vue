@@ -36,7 +36,7 @@
             clearable
             accept=".mbd,.mxd"
             style="max-width: 95px"
-            @update:model-value="handleUpload()"
+            @update:model-value="uploadBuildClick()"
           >
             <template v-slot:prepend>
               <q-icon name="upload_file" />
@@ -47,28 +47,40 @@
       </q-toolbar>
     </template>
 
-    <q-card class="no-border-radius q-pa-md no-margin">
-      <q-list
-        bordered
-        separator
-        dense
-        class="rounded-borders text-primary num-columns"
-      >
-        <div v-for="(buildSlot, index) in store.buildSlots" :key="index">
-          <build-slot
-            :buildSlot="buildSlot"
-            @mouseenter="mouseenter($event, power)"
-          ></build-slot>
-        </div>
-      </q-list>
-    </q-card>
+    <div class="group-column-long">
+      <q-card class="no-border-radius q-pa-md no-margin">
+        <q-list
+          bordered
+          separator
+          dense
+          class="rounded-borders text-primary num-columns"
+        >
+          <div v-for="(buildSlot, index) in store.buildSlots" :key="index">
+            <build-slot :buildSlot="buildSlot"></build-slot>
+          </div>
+        </q-list>
+      </q-card>
 
-    <q-dialog v-model="openBuild" persistent>
+      <q-card class="no-border-radius q-pa-md" style="margin: -8px 0 10px 0">
+        <q-list
+          bordered
+          separator
+          dense
+          class="rounded-borders text-primary num-columns"
+        >
+          <div v-for="(buildSlot, index) in store.inherentSlots" :key="index">
+            <build-slot :buildSlot="buildSlot"></build-slot>
+          </div>
+        </q-list>
+      </q-card>
+    </div>
+
+    <q-dialog v-model="openBuild" persistent maximized>
       <q-card class="bg-secondary text-white" style="width: 100%">
         <q-card-section>
           <div class="text-h6">Current Build</div>
         </q-card-section>
-        <q-card-section>
+        <q-card-section style="max-height: 85%">
           <q-input v-model="openBuildText" filled type="textarea" />
         </q-card-section>
         <q-separator dark />
@@ -132,7 +144,7 @@ export default defineComponent({
   methods: {
     async fetchBuildLevels() {
       const response = await axios.get('/json/talonplanner/leveling.json');
-      this.store.levels = [];
+      const levels = [];
 
       /* Save Levels Information */
       let level = {};
@@ -143,13 +155,15 @@ export default defineComponent({
           powers: response.data.levels[index].powers,
           slots: response.data.levels[index].slots,
         };
-        this.store.levels.push(level);
+        levels.push(level);
       }
-      this.store.buildEmptyBuild();
-    },
-    mouseenter(e, power) {
-      if (power == undefined) return;
-      this.store.uiSelectedPower = power;
+
+      const inherentsList = [];
+      for (let index = 0; index < response.data.inherents.length; index++) {
+        inherentsList.push(response.data.inherents[index]);
+      }
+
+      this.store.buildEmptyBuild(levels, inherentsList);
     },
     newBuildClick() {
       this.store.emptyBuild();
@@ -167,10 +181,8 @@ export default defineComponent({
         this.store.notify('negative', 'Error: ' + status);
       }
     },
+    //TODO: Implement reading a file.
     uploadBuildClick() {
-      //
-    },
-    handleUpload() {
       console.log(this.file);
     },
     openBuildClick() {
@@ -211,22 +223,40 @@ export default defineComponent({
   height: 60px;
 }
 .num-columns {
-  columns: 1;
+  columns: 2;
 }
 
-@media (min-width: 812px) {
+.group-column-long {
+  height: calc(100vh - 170px);
+  overflow: auto;
+}
+
+@media (min-width: 450px) {
+  .num-columns {
+    columns: 3;
+  }
+}
+@media (min-width: 600px) {
   .num-columns {
     columns: 2;
+  }
+}
+@media (min-width: 768px) {
+  .num-columns {
+    columns: 3;
   }
 }
 @media (min-width: 1024px) {
   .num-columns {
-    columns: 2;
+    columns: 4;
   }
 }
 @media (min-width: 1440px) {
   .num-columns {
-    columns: 3;
+    columns: 4;
+  }
+  .group-column-long {
+    height: auto;
   }
 }
 </style>

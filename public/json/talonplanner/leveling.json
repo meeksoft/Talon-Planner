@@ -50,5 +50,14 @@
     { "level": 48, "powers": 0, "slots": 3 },
     { "level": 49, "powers": 1, "slots": 0 },
     { "level": 50, "powers": 0, "slots": 3 }
+  ],
+  "inherents": [
+    "Inherent.Inherent.Brawl",
+    "Inherent.Inherent.Sprint",
+    "Inherent.Inherent.Rest",
+    "Inherent.Fitness.Swift",
+    "Inherent.Fitness.Hurdle",
+    "Inherent.Fitness.Health",
+    "Inherent.Fitness.Stamina"
   ]
 }
