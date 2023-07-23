@@ -20,6 +20,15 @@ Once AGAIN...
 This was never meant to replace any existing planner.
 This was to hopefully take the next step in "planners," being multi-platform. I am thankful and still use other planners. This community is awesome.
 
+## Breakin Eggs
+
+- Had to break some great Quasar features.
+  - Custom styling; instead of using styling of prebuilt components. -- To squeeze the spacing.
+  - Custom breakpoints; More Boostrap and even non-bootstrap. -- To have a view at every size.
+- Using Tauri.
+  - Initially wanted a web first, mobile device second, and desktop as an afterthought. But after some thinking, wanted a desktop app; so some shifting happened.
+  - I imagine this makes development onboarding harder/longer. Compared to using supported frameworks like Electron. And versus using a more closer related language.
+
 ## Updating
 
 ### Data
