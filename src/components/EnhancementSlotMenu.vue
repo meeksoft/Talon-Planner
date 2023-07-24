@@ -37,11 +37,14 @@
       </q-card-section>
       <q-separator dark />
       <q-card-actions>
+        <q-btn flat icon="delete_forever" @click.capture.stop="removeClick()"
+          >Remove</q-btn
+        >
         <q-btn flat icon="delete" @click.capture.stop="clearClick()"
           >Clear</q-btn
         >
-        <q-btn flat icon="delete_forever" @click.capture.stop="removeClick()"
-          >Remove</q-btn
+        <q-btn flat icon="delete_sweep" @click.capture.stop="removeAllClick()"
+          >Remove<br />All</q-btn
         >
       </q-card-actions>
     </q-card>
@@ -114,6 +117,10 @@ export default {
         this.buildSlot,
         this.enhancementSlot
       );
+    },
+    removeAllClick() {
+      this.hide();
+      this.store.emptyBuildSlot(this.buildSlot, false);
     },
   },
 };

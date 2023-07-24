@@ -92,10 +92,6 @@ export default defineComponent({
       required: true,
       default: () => ({ level: 0, power: null }),
     },
-    zeroIndex: {
-      type: Boolean,
-      default: false,
-    },
   },
   setup() {
     const store = useTalonStore();
@@ -110,7 +106,7 @@ export default defineComponent({
       this.store.uiSelectedPower = power;
     },
     getSlotLevel(val) {
-      return val + (this.zeroIndex ? 1 : 0);
+      return val;
     },
     isEmptySlot() {
       if (

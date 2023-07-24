@@ -14,7 +14,7 @@
       </q-item-label>
       <q-btn
         class=""
-        size="md"
+        size="lg"
         padding="none"
         flat
         dense
@@ -39,7 +39,7 @@
           padding="0"
           color="primary"
           :icon="getBoostIcon(index)"
-          size="xs"
+          :size="enhancementSlotIconSize"
         >
           <q-tooltip>{{ boost.label }}</q-tooltip>
         </q-btn>
@@ -50,6 +50,7 @@
 
 <script>
 import { defineComponent } from 'vue';
+import { useQuasar } from 'quasar';
 import { useTalonStore } from 'stores/talon-store';
 import PowersetSlotTooltip from 'components/PowersetSlotTooltip.vue';
 
@@ -62,21 +63,26 @@ export default defineComponent({
       required: true,
       default: () => ({ level: '', description: '' }),
     },
-    zeroIndex: {
-      type: Boolean,
-      default: false,
-    },
   },
   setup() {
+    const quasar = useQuasar();
     const store = useTalonStore();
 
     return {
+      quasar,
       store,
     };
   },
+  computed: {
+    enhancementSlotIconSize() {
+      if (this.quasar.screen.gt.md) return 'md';
+      if (this.quasar.screen.gt.sm) return 'sm';
+      return 'md';
+    },
+  },
   methods: {
     getSlotLevel(val) {
-      return val + (this.zeroIndex ? 1 : 0);
+      return val + 1;
     },
     getBoostIcon(val) {
       if (val >= this.power.boosts.length) return;

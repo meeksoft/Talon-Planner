@@ -676,7 +676,7 @@ export const useTalonStore = defineStore('talon', {
           for (const power of powerset.powers) {
             if (power.value == buildSlot.power.value) {
               buildSlot.disabled = false;
-              buildSlot.level = power.level;
+              buildSlot.level = power.level + 1; //Zero Indexed Powers
               this.assignPowerToBuildSlot(power, buildSlot);
             }
           }
@@ -686,24 +686,36 @@ export const useTalonStore = defineStore('talon', {
     },
     emptyBuild() {
       for (const buildSlot of this.buildSlots) {
-        if (buildSlot.power.label.length > 0) {
-          buildSlot.power.assigned = false;
-        }
-        buildSlot.power = EmptyPower;
-        if (buildSlot.enhancementSlots.length > 0) {
-          buildSlot.enhancementSlots[0].boost = EmptyBoost;
-        }
+        this.emptyBuildSlot(buildSlot);
       }
 
       /* Only remove enhancement slots, not powers */
       for (const buildSlot of this.inherentSlots) {
-        if (buildSlot.enhancementSlots.length > 0) {
-          buildSlot.enhancementSlots[0].boost = EmptyBoost;
-        }
+        this.emptyBuildSlot(buildSlot, false);
       }
+
       for (const enhancementSlot of this.enhancementSlots) {
         enhancementSlot.assigned = false;
         enhancementSlot.boost = EmptyBoost;
+      }
+    },
+    emptyBuildSlot(buildSlot: BuildSlot, willEmptyPower = true) {
+      if (buildSlot.enhancementSlots.length > 0) {
+        if (willEmptyPower) {
+          if (buildSlot.power.label.length > 0) {
+            buildSlot.power.assigned = false; //Unassign from build
+          }
+          buildSlot.power = EmptyPower; //Clear power from powerslot.
+        }
+
+        buildSlot.enhancementSlots[0].boost = EmptyBoost;
+
+        for (let i = buildSlot.enhancementSlots.length - 1; i > 0; i--) {
+          this.removeEnhancementSlotFrom(
+            buildSlot,
+            buildSlot.enhancementSlots[i]
+          );
+        }
       }
     },
     addPowerToBuild(selectedPower: Power): BuildSlot | null {
@@ -786,20 +798,9 @@ export const useTalonStore = defineStore('talon', {
           buildSlot.power == selectedPower ||
           buildSlot.power.value == selectedPower.value
         ) {
-          this.removeBuildSlotFromBuild(buildSlot);
+          this.emptyBuildSlot(buildSlot);
           break;
         }
-      }
-    },
-    removeBuildSlotFromBuild(buildSlot: BuildSlot) {
-      buildSlot.power.assigned = false; //Unassign from build.
-      buildSlot.power = EmptyPower; //Clear power from powerslot.
-
-      //Clear and clean up enhancement slots.
-      for (let j = buildSlot.enhancementSlots.length - 1; j >= 0; j--) {
-        const enhancementSlot =
-          buildSlot.enhancementSlots.pop() as EnhancementSlot;
-        enhancementSlot.assigned = false;
       }
     },
     addNextAvailableEnhancementSlotTo(buildSlot: BuildSlot) {
@@ -841,7 +842,6 @@ export const useTalonStore = defineStore('talon', {
       if (selectedEnhancementSlot.level == -1) return;
       if (buildSlot.enhancementSlots.length < 2) return;
 
-      selectedEnhancementSlot.level = -1;
       selectedEnhancementSlot.assigned = false;
       selectedEnhancementSlot.boost = EmptyBoost;
       buildSlot.enhancementSlots = buildSlot.enhancementSlots.filter(
@@ -864,9 +864,16 @@ export const useTalonStore = defineStore('talon', {
     getBoost(name: string): Boost | null {
       // BUG: Hack to support unsupported enhancements.
       name = name.replace(/Invention: /g, '');
-
-      /* Find Boost */
       let foundBoost = null;
+
+      this.boostGroups.forEach((boostGroup) => {
+        if (boostGroup.label == name) {
+          foundBoost = boostGroup.boost;
+          return false;
+        }
+      });
+      if (foundBoost != null) return foundBoost;
+
       this.genericBoosts.forEach((boost) => {
         if (boost.value == name || boost.label == name) {
           foundBoost = boost;
@@ -875,12 +882,7 @@ export const useTalonStore = defineStore('talon', {
       });
       if (foundBoost != null) return foundBoost;
 
-      this.boostGroups.forEach((boostGroup) => {
-        if (boostGroup.label == name) {
-          foundBoost = boostGroup.boost;
-          return false;
-        }
-      });
+      console.log('getBoost: Not found: ' + name);
       return foundBoost;
     },
     // TODO: Get Archetype by name or value, etc.

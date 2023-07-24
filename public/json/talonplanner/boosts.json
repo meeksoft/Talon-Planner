@@ -7,8 +7,8 @@
     },
     {
       "name": "Confusion",
-      "type": "Enhance Confuse Duration",
-      "icon": "IO_Confuse.png"
+      "type": "Enhance Confuse",
+      "icon": "IO_Confusion_Duration.png"
     },
     { "name": "Damage", "type": "Enhance Damage", "icon": "IO_Damage.png" },
     {
@@ -28,23 +28,23 @@
     },
     {
       "name": "Fear Duration",
-      "type": "Enhance Fear Duration",
+      "type": "Enhance Fear",
       "icon": "IO_Fear_Duration.png"
     },
     {
       "name": "Flight Speed",
-      "type": "Enhance Flight Speed",
+      "type": "Enhance Flying Speed",
       "icon": "IO_Flight_Speed.png"
     },
     { "name": "Healing", "type": "Enhance Heal", "icon": "IO_Heal.png" },
     {
       "name": "Hold Duration",
-      "type": "Enhance Hold Duration",
+      "type": "Enhance Hold",
       "icon": "IO_Hold_Duration.png"
     },
     {
       "name": "Immobilization Duration",
-      "type": "Enhance Immobiliztion Duration",
+      "type": "Enhance Immobilization",
       "icon": "IO_Immobilization_Duration.png"
     },
     {
@@ -54,13 +54,13 @@
     },
     {
       "name": "Activation Acceleration",
-      "type": "Decrease Interrupt Time",
+      "type": "Reduce Interrupt Time",
       "icon": "IO_Interrupt_Time.png"
     },
     { "name": "Jumping", "type": "Enhance Jump", "icon": "IO_Jump.png" },
     {
       "name": "Knockback Distance",
-      "type": "Enhance KnockBack Distance",
+      "type": "Enhance KnockBack",
       "icon": "IO_KnockBack_Distance.png"
     },
     {
@@ -90,7 +90,7 @@
     },
     {
       "name": "Sleep Duration",
-      "type": "Enhance Sleep Duration",
+      "type": "Enhance Sleep",
       "icon": "IO_Sleep_Duration.png"
     },
     {
@@ -100,7 +100,7 @@
     },
     {
       "name": "Disorient Duration",
-      "type": "Enhance Disorient Duration",
+      "type": "Enhance Disorient",
       "icon": "IO_Disorient_Duration.png"
     },
     {
@@ -110,13 +110,38 @@
     },
     {
       "name": "ToHit Buff",
-      "type": "Enhance ToHit Buff",
+      "type": "Enhance ToHit Buffs",
       "icon": "IO_ToHit_Buffs.png"
     },
     {
       "name": "Accuracy DeBuff",
-      "type": "Enhance ToHit DeBuff",
+      "type": "Enhance ToHit DeBuffs",
       "icon": "IO_ToHit_DeBuffs.png"
+    },
+    {
+      "name": "Magic Boost",
+      "type": "Magic_Boost",
+      "icon": "Originicon_magic.png"
+    },
+    {
+      "name": "Mutation Boost",
+      "type": "Mutation_Boost",
+      "icon": "Originicon_mutation.png"
+    },
+    {
+      "name": "Natural Boost",
+      "type": "Natural_Boost",
+      "icon": "Originicon_natural.png"
+    },
+    {
+      "name": "Science Boost",
+      "type": "Science_Boost",
+      "icon": "Originicon_science.png"
+    },
+    {
+      "name": "Technology Boost",
+      "type": "Technology_Boost",
+      "icon": "Originicon_technology.png"
     }
   ],
   "categories": [

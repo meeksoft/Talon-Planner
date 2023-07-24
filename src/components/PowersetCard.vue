@@ -18,7 +18,7 @@
       :label="powerset ? powerset.label : powersetModel.label"
       header-class="bg-light-blue text-white"
       expand-icon-class="text-white"
-      class="power-set-card-expansion-item"
+      class="powerset-card-expansion-item"
     >
       <template v-slot:header v-if="!powerset">
         <q-select
@@ -73,7 +73,6 @@
             <div v-for="(power, index) in powers" :key="index">
               <powerset-slot
                 :power="power"
-                zeroIndex
                 @mouseenter="mouseenter($event, power)"
               ></powerset-slot>
             </div>
@@ -82,7 +81,6 @@
             <div v-for="(power, index) in powerset.powers" :key="index">
               <powerset-slot
                 :power="power"
-                zeroIndex
                 @mouseenter="mouseenter($event, power)"
               ></powerset-slot>
             </div>
@@ -204,7 +202,7 @@ export default defineComponent({
   /* width: 100%; */
 }
 
-.power-set-card-expansion-item .q-item {
+.powerset-card-expansion-item .q-item {
   padding: 2px 4px;
 }
 
@@ -228,5 +226,12 @@ export default defineComponent({
 .powerset-card-select .q-field--auto-height .q-field__native {
   height: 24px;
   min-height: 24px;
+}
+
+@media (min-width: 1024) {
+  .powerset-card-list {
+    max-height: calc(100vh - 187px);
+    overflow: auto;
+  }
 }
 </style>
