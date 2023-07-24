@@ -29,6 +29,13 @@ This was to hopefully take the next step in "planners," being multi-platform. I 
   - Initially wanted a web first, mobile device second, and desktop as an afterthought. But after some thinking, wanted a desktop app; so some shifting happened.
   - I imagine this makes development onboarding harder/longer. Compared to using supported frameworks like Electron. And versus using a more closer related language.
 
+## Links
+
+Non City of Heroes related Links.
+
+- [Quasar](https://quasar.dev)
+- [Tauri](https://tauri.app)
+
 ## Updating
 
 ### Data
@@ -83,3 +90,16 @@ If for some reason you need to run a build on LOCAL. AKA view a distribution.
 1. _Requirement_ Have Quasar CLI package installed globally.
 2. Use the VSCode task `Quasar Serve`
 3. Visit [http://localhost:3223](http://localhost:3223)
+
+## PROD Tauri Build
+
+Builds Quasar SPA about 2mins.
+Non-installer with debug about 20mins.
+Non-installer w/o debug about 22mins.
+Installer about XXmins.
+
+```sh
+# Use LLD link built into cargo.  May not work on macOS.
+[build]
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+```

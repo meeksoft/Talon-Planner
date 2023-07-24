@@ -1,5 +1,5 @@
 <template>
-  <q-menu ref="enhancementSlotMenu" style="width: 300px">
+  <q-menu ref="enhancementSlotMenu" style="width: 315px">
     <q-card class="bg-secondary text-white">
       <q-card-section>
         <div class="text-h6">{{ buildSlot.power.label }}</div>

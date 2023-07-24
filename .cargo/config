@@ -1,0 +1,4 @@
+# Use LLD link built into cargo.  May not work on macOS.
+[build]
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+

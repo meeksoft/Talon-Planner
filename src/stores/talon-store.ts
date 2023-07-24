@@ -365,6 +365,7 @@ export const useTalonStore = defineStore('talon', {
             apiCall =
               '/json/homecoming/powers/' + archetype.secondary + '/index.json';
           }
+          apiCall = apiCall.toLowerCase();
 
           await api
             .get(apiCall)
@@ -428,14 +429,15 @@ export const useTalonStore = defineStore('talon', {
       // const categoryName = powersetName.split('/')[1].replace(/_/g, '');
 
       /* Load Powers for this Powerset */
+      const powersetPath = (
+        '/json/homecoming/powers/' +
+        powerset.powersetFolder +
+        '/' +
+        powerset.powerFolder +
+        '/index.json'
+      ).toLowerCase();
       await api
-        .get(
-          '/json/homecoming/powers/' +
-            powerset.powersetFolder +
-            '/' +
-            powerset.powerFolder +
-            '/index.json'
-        )
+        .get(powersetPath)
         .then((res) => {
           this.setPowersetIcon(powerset);
           powerset.description = res.data.display_help;
@@ -468,14 +470,20 @@ export const useTalonStore = defineStore('talon', {
       let powerName = power.value.replace(/\./g, '/');
       powerName = powerName.replace(/:/g, '_');
 
+      const powerPath = (
+        '/json/homecoming/powers/' +
+        powerName +
+        '.json'
+      ).toLowerCase();
       await api
-        .get('/json/homecoming/powers/' + powerName + '.json')
+        .get(powerPath)
         .then((res) => {
           power.icon =
             'img:/icon/powers/' +
             // power.powerset.powerFolder.replace(/_/g, '') +
             // '/' +
             res.data.icon;
+          power.icon = power.icon.toLowerCase();
           power.description = res.data.display_help;
           power.requires = res.data.requires;
           power.boostsAllowed = res.data.boosts_allowed;
@@ -929,6 +937,7 @@ export const useTalonStore = defineStore('talon', {
       }
 
       powerset.icon = 'img:/icon/powers/' + icon;
+      powerset.icon = powerset.icon.toLowerCase();
     },
     assignUIBuildSlot(selectedBuildSlot: BuildSlot) {
       if (selectedBuildSlot.selected) {

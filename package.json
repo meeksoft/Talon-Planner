@@ -16,7 +16,10 @@
     "build:debug": "quasar build -d",
     "build:pwa": "quasar build -m pwa",
     "build:pwa:debug": "quasar build -m pwa -d",
-    "dev:tauri": "tauri dev"
+    "dev:tauri": "tauri dev -v",
+    "build:tauri": "tauri build -v",
+    "build:tauri:noinstaller:debug": "tauri build -v -d -b none",
+    "build:tauri:noinstaller": "tauri build -v -b none"
   },
   "dependencies": {
     "@quasar/extras": "^1.16.5",
