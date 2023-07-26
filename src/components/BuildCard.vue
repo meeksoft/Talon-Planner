@@ -28,22 +28,9 @@
         <q-btn flat round dense icon="file_open" @click="openBuildClick()">
           <q-tooltip>Open Build<br />Copy Current or Paste New</q-tooltip>
         </q-btn>
-        <div class="q-pa-md">
-          <q-file
-            v-model="file"
-            label="Pick"
-            filled
-            clearable
-            accept=".mbd,.mxd"
-            style="max-width: 95px"
-            @update:model-value="uploadBuildClick()"
-          >
-            <template v-slot:prepend>
-              <q-icon name="upload_file" />
-            </template>
-            <q-tooltip>Upload Build from File</q-tooltip>
-          </q-file>
-        </div>
+        <q-btn flat round dense icon="upload_file" @click="uploadBuildClick()">
+          <q-tooltip>Upload Build from File</q-tooltip>
+        </q-btn>
       </q-toolbar>
     </template>
 
@@ -97,10 +84,28 @@
             flat
             icon="update"
             label="Update"
-            color="text-white"
+            color="bg-secondary"
             v-close-popup
             @click="updateClick()"
           />
+          <q-btn flat label="CANCEL" color="text-white" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="uploadBuild" persistent>
+      <q-card class="bg-secondary text-white">
+        <q-card-section>
+          <q-uploader
+            style="max-width: 300px"
+            url="/upload"
+            label="Upload Mids"
+            @rejected="onRejected"
+          />
+        </q-card-section>
+        <q-separator dark />
+        <q-card-actions align="right">
+          <q-space />
           <q-btn flat label="CANCEL" color="text-white" v-close-popup />
         </q-card-actions>
       </q-card>
@@ -113,6 +118,8 @@ import { defineComponent, ref } from 'vue';
 import { exportFile } from 'quasar';
 import { useTalonStore } from 'stores/talon-store';
 import axios from 'axios';
+import { open } from '@tauri-apps/api/dialog';
+import { readTextFile } from '@tauri-apps/api/fs';
 import BuildSlot from 'components/BuildSlot.vue';
 
 export default defineComponent({
@@ -131,15 +138,33 @@ export default defineComponent({
   setup() {
     const store = useTalonStore();
 
+    function checkFileType(files) {
+      console.log(files);
+      return files.filter((file) => file.type === '');
+    }
+
+    function onRejected(rejectedEntries) {
+      console.error(
+        `${rejectedEntries.length} file(s) did not pass validation constraints`
+      );
+    }
+
     return {
       store,
       openBuild: ref(false),
       openBuildText: ref(''),
-      file: ref(null),
+      uploadBuild: ref(false),
+      checkFileType,
+      onRejected,
     };
   },
   mounted() {
     this.fetchBuildLevels();
+  },
+  computed: {
+    hasWindow() {
+      return window.__TAURI__ != undefined;
+    },
   },
   methods: {
     async fetchBuildLevels() {
@@ -182,8 +207,23 @@ export default defineComponent({
       }
     },
     //TODO: Implement reading a file.
-    uploadBuildClick() {
-      console.log(this.file);
+    async uploadBuildClick() {
+      if (window.__TAURI__) {
+        try {
+          const selectedPath = await open({
+            multiple: false,
+            title: 'Open MBD File',
+            filters: [{ name: 'Mids', extensions: ['mbd'] }],
+          });
+          if (!selectedPath) return;
+          const contents = await readTextFile(selectedPath);
+          this.loadMBDObject(contents);
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        this.uploadBuild = true;
+      }
     },
     openBuildClick() {
       this.openBuild = true;
@@ -204,15 +244,19 @@ export default defineComponent({
 
       /* MBD */
       if (build.indexOf('BuiltWith') >= 0) {
-        let json = {};
-        try {
-          json = JSON.parse(build);
-        } catch (e) {
-          console.log(e.message);
-        }
-        this.store.loadMBDObject(json);
+        this.loadMBDObject(build);
         return;
       }
+    },
+    loadMBDObject(contents) {
+      let json = {};
+      try {
+        json = JSON.parse(contents);
+      } catch (e) {
+        console.log(e.message);
+      }
+      if (Object.keys(json).length == 0) return;
+      this.store.loadMBDObject(json);
     },
   },
 });

@@ -954,6 +954,13 @@ export const useTalonStore = defineStore('talon', {
       this.uiSelectedBuildSlot = selectedBuildSlot;
     },
     getPowerFromSelectedModels(selectedPowerValue: string): Power | null {
+      if (
+        selectedPowerValue == undefined ||
+        selectedPowerValue == null ||
+        selectedPowerValue.length < 1
+      )
+        return null;
+
       for (const power of this.primaryModel.powers) {
         if (power.value == selectedPowerValue) {
           return power;
@@ -1095,9 +1102,18 @@ export const useTalonStore = defineStore('talon', {
 
       /* Assign Powers to Build Slots */
       for (const powerEntry of mbdObject.PowerEntries) {
-        const power = this.getPowerFromSelectedModels(powerEntry.PowerName);
+        const powerName = powerEntry.PowerName;
+        if (
+          powerName == undefined ||
+          powerName == null ||
+          powerName.length < 1 ||
+          powerEntry.Level < 0
+        )
+          continue;
+
+        const power = this.getPowerFromSelectedModels(powerName);
         if (power == null) {
-          this.notify('negative', 'Unknown Power ' + powerEntry.PowerName);
+          this.notify('negative', 'Unknown Power ' + powerName);
           continue;
         }
 

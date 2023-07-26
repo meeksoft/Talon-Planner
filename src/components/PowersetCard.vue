@@ -19,6 +19,7 @@
       header-class="bg-light-blue text-white"
       expand-icon-class="text-white"
       class="powerset-card-expansion-item"
+      active-class="powerset-card-expansion-item-active"
     >
       <template v-slot:header v-if="!powerset">
         <q-select
@@ -64,7 +65,7 @@
       </template>
 
       <q-card class="no-border-radius q-pa-md no-margin">
-        <q-list bordered dense class="rounded-borders text-primary">
+        <q-list dense class="text-primary">
           <div
             style="overflow: auto"
             v-if="!powerset"
@@ -202,6 +203,10 @@ export default defineComponent({
   /* width: 100%; */
 }
 
+.powerset-card-expansion-item {
+  overflow: hidden;
+}
+
 .powerset-card-expansion-item .q-item {
   padding: 2px 4px;
 }
@@ -228,7 +233,7 @@ export default defineComponent({
   min-height: 24px;
 }
 
-@media (min-width: 1024) {
+@media (min-width: 1024px) {
   .powerset-card-list {
     max-height: calc(100vh - 187px);
     overflow: auto;

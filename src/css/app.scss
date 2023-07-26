@@ -1,1 +1,21 @@
 // app global css in SCSS form
+html {
+  --scrollbarbg: #cfd8dc;
+  --thumbbg: #90a4ae;
+}
+body {
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbarBG);
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--thumbBG);
+    border-radius: 6px;
+    border: 3px solid var(--scrollbarBG);
+  }
+}

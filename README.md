@@ -91,7 +91,9 @@ If for some reason you need to run a build on LOCAL. AKA view a distribution.
 2. Use the VSCode task `Quasar Serve`
 3. Visit [http://localhost:3223](http://localhost:3223)
 
-## PROD Tauri Build
+## LOCAL Tauri Build
+
+_You may need to run `tauri dev` before launching Debug_
 
 Builds Quasar SPA about 2mins.
 Non-installer with debug about 20mins.
