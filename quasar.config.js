@@ -9,6 +9,7 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
 const { configure } = require('quasar/wrappers');
+const { gitDescribeSync } = require('git-describe');
 
 module.exports = configure(function (/* ctx */) {
   return {
@@ -62,7 +63,9 @@ module.exports = configure(function (/* ctx */) {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: {
+        VUE_APP_GIT_HASH: gitDescribeSync().hash,
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,

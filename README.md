@@ -56,10 +56,6 @@ They are placed into the `public\icon` folder.
 - Format the files: `yarn format`
 - Build the app for production: `quasar build`
 
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
-
 ## LOCAL Setup
 
 - [Vue DevTools for Browser](https://github.com/vuejs/devtools)
@@ -74,6 +70,8 @@ _Warnnig_ You may notice in some dev environments, that Workbox will not load yo
 
 - `dev:pwa`
 - `build:pwa`
+
+Builds PWA about 10mins.
 
 ### LOCAL Debug
 
@@ -113,3 +111,14 @@ Using [Quasar v2 SSG App Extension](https://github.com/freddy38510/quasar-app-ex
 Issues with `build:ssg` when `quasar.config.js` `pwa` is **true**.
 
 Builds Quasar SSG about 22mins.
+
+## Optimization
+
+This _needs_ to be worked on, seriously.
+Load speed, caching, number of requests, build speed, etc.
+
+- We have over 5K requests to load the json.
+- We rely heavily on the browser's `disk cache`.
+- Each json file needs to be "processed" when building SSG or Desktop App.
+- Loading json from CDN takes over 12mins.
+- Loading json from Desktop App is about 30seconds.

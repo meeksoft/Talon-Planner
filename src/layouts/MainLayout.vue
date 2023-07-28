@@ -13,7 +13,10 @@
 
         <q-toolbar-title> Talon Planer </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>
+          v{{ $q.version }} -
+          {{ getGitHash }}
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -135,6 +138,11 @@ export default defineComponent({
       },
       debugToggleModel,
     };
+  },
+  computed: {
+    getGitHash() {
+      return process.env.VUE_APP_GIT_HASH;
+    },
   },
 });
 </script>
