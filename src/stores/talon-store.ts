@@ -185,7 +185,23 @@ export const useTalonStore = defineStore('talon', {
         message: message,
       });
       if (this.showDebugConsoleErrors) {
-        console.log('' + type + ': ' + message);
+        switch (type) {
+          case 'negative':
+            console.error('' + type + ': ' + message);
+            break;
+
+          case 'warning':
+            console.warn('' + type + ': ' + message);
+            break;
+
+          case 'info':
+            console.info('' + type + ': ' + message);
+            break;
+
+          default:
+            console.log('' + type + ': ' + message);
+            break;
+        }
       }
     },
     //#region Utility

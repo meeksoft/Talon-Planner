@@ -75,7 +75,7 @@ _Warnnig_ You may notice in some dev environments, that Workbox will not load yo
 - `dev:pwa`
 - `build:pwa`
 
-## LOCAL Debug
+### LOCAL Debug
 
 Two step process in VSCode. This is allow us to have break points:
 
@@ -105,3 +105,11 @@ Installer about XXmins.
 [build]
 rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 ```
+
+### SSG
+
+Using [Quasar v2 SSG App Extension](https://github.com/freddy38510/quasar-app-extension-ssg)
+
+Issues with `build:ssg` when `quasar.config.js` `pwa` is **true**.
+
+Builds Quasar SSG about 22mins.

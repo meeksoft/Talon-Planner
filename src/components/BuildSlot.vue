@@ -125,7 +125,8 @@ export default defineComponent({
       }
       //return 'add_circle';
       //return 'add_circle_outline';
-      return 'radio_button_unchecked';
+      //return 'radio_button_unchecked';
+      return '';
     },
     itemClick() {
       if (this.isEmptySlot()) {

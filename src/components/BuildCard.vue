@@ -144,7 +144,8 @@ export default defineComponent({
     }
 
     function onRejected(rejectedEntries) {
-      console.error(
+      this.store.notify(
+        'negative',
         `${rejectedEntries.length} file(s) did not pass validation constraints`
       );
     }
