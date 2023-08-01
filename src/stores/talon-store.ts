@@ -302,49 +302,106 @@ export const useTalonStore = defineStore('talon', {
 
       /* Begin Fetches */
       this.isFetching = true;
-      const steps = 3;
+      let currentStep = 0;
+      let maxSteps = 0;
 
       const notif = this.$q.notify({
         type: 'ongoing',
-        color: 'info',
-        position: 'bottom-right',
+        color: 'pink-8',
+        position: 'bottom-left',
         caption: '0%',
-        message: 'Loading Pools.',
+        message: '',
       });
+      const notifMini = this.$q.notify({
+        type: 'ongoing',
+        color: 'pink-6',
+        position: 'bottom-left',
+        caption: '0%',
+        message: '',
+      });
+
+      // Pools
+      currentStep = 0;
+      maxSteps = this.pools.length;
       for (const powerset of this.pools) {
+        notif({
+          caption: `${((currentStep * 100) / maxSteps).toFixed(0)}%`,
+          message: `Loading Powersets ${powerset.label}`,
+        });
         await this.fetchPowerset(powerset, 1);
+        currentStep++;
       }
 
-      notif({
-        caption: `${(100 / steps).toFixed(0)}%`,
-        message: 'Loading Powersets.',
-      });
+      // Archtype Powersets
+      let atCurrentStep = 0;
+      const atMaxSteps = this.archetypes.length;
       for (const archetype of this.archetypes) {
+        // Primary
+        currentStep = 0;
+        maxSteps = archetype.primaryPowersets.length;
         for (const powerset of archetype.primaryPowersets) {
+          notif({
+            caption: `${((atCurrentStep * 100) / atMaxSteps).toFixed(0)}%`,
+            message: `Loading Archetypes ${archetype.label}`,
+          });
+          notifMini({
+            caption: `${((currentStep * 100) / maxSteps).toFixed(0)}%`,
+            message: `Loading Powersets ${powerset.label}`,
+          });
           await this.fetchPowerset(powerset, 1);
+          currentStep++;
         }
+        // Secondary
+        currentStep = 0;
+        maxSteps = archetype.secondaryPowersets.length;
         for (const powerset of archetype.secondaryPowersets) {
+          notif({
+            caption: `${((atCurrentStep * 100) / atMaxSteps).toFixed(0)}%`,
+            message: `Loading Archetypes ${archetype.label}`,
+          });
+          notifMini({
+            caption: `${((currentStep * 100) / maxSteps).toFixed(0)}%`,
+            message: `Loading Powersets ${powerset.label}`,
+          });
           await this.fetchPowerset(powerset, 1);
+          currentStep++;
         }
+        atCurrentStep++;
       }
 
-      notif({
-        caption: `${(200 / steps).toFixed(0)}%`,
-        message: 'Loading Boost Sets.',
-      });
+      let bgCurrentStep = 0;
+      const bgMaxSteps = this.boostGroups.length;
       for (const boostGroup of this.boostGroups) {
+        currentStep = 0;
+        maxSteps = this.pools.length;
         for (const boostSet of boostGroup.boostSets) {
+          notif({
+            caption: `${((bgCurrentStep * 100) / bgMaxSteps).toFixed(0)}%`,
+            message: `Loading Boost Groups ${boostGroup.label}`,
+          });
+          notifMini({
+            caption: `${((currentStep * 100) / maxSteps).toFixed(0)}%`,
+            message: `Boost Sets ${boostSet.label}`,
+          });
           if (!boostSet.loaded) {
             await this.fetchBoostset(boostSet, boostGroup.value);
           }
+          currentStep++;
         }
+        bgCurrentStep++;
       }
 
       notif({
         type: 'positive',
         color: 'positive',
         caption: '100%',
-        message: 'Loading is Pau!',
+        message: 'Downloading is Pau!',
+      });
+      notifMini({
+        type: 'positive',
+        color: 'positive',
+        caption: '100%',
+        message: 'Downloading is Pau!',
       });
 
       this.isFetching = false;

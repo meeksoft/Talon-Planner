@@ -62,9 +62,11 @@ export default {
   },
   setup() {
     const store = useTalonStore();
+    const openned = false;
 
     return {
       store,
+      openned,
     };
   },
   computed: {
@@ -79,7 +81,6 @@ export default {
           for (const boostGroup of this.store.boostGroups) {
             if (boostGroup.label == boost.label) {
               for (const boostSet of boostGroup.boostSets) {
-                console.log(boostSet.label);
                 list.push(boostSet.boosts);
               }
               break;
@@ -92,14 +93,20 @@ export default {
   },
   methods: {
     async show() {
+      this.openned = true;
       this.$refs.enhancementSlotMenu.show();
+
+      /* Load Boosts if needed */
       for (const boost of this.buildSlot.power.boosts) {
         if (boost.group != 'generic') {
           /* Loop through all boost sets of that type. */
           for (const boostGroup of this.store.boostGroups) {
+            if (boostGroup.loaded) continue;
             if (boostGroup.label == boost.label) {
               for (const boostSet of boostGroup.boostSets) {
-                await this.store.fetchBoostset(boostSet);
+                if (!boostSet.loaded) {
+                  await this.store.fetchBoostset(boostSet);
+                }
               }
               break;
             }
@@ -108,7 +115,11 @@ export default {
       }
     },
     hide() {
+      this.openned = false;
       this.$refs.enhancementSlotMenu.hide();
+    },
+    isOpen() {
+      return this.openned;
     },
     boostToolTip(boost) {
       if (boost.group) {

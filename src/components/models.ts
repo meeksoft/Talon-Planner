@@ -126,6 +126,7 @@ export class BoostSet implements IBoostSet {
 }
 
 export interface IBoostGroup {
+  loadedN: boolean; //Quick reference instead of loop.
   label: string;
   value: string;
   icon: string;
@@ -134,12 +135,23 @@ export interface IBoostGroup {
 }
 
 export class BoostGroup implements IBoostGroup {
+  loadedN = false;
   label = '';
   value = '';
   icon = '';
   boost = new Boost();
   boostSets = [] as BoostSet[];
 
+  public get loaded() {
+    if (this.loadedN) return true;
+    if (this.boostSets.length < 1) return false;
+    const boostSet = this.boostSets.find((b) => b.loaded == false);
+    if (boostSet != undefined) return false;
+    this.loadedN = true;
+    return true;
+  }
+
+  //Is a BoostSet loaded.
   public isLoaded(value: string) {
     const boostSet = this.boostSets.find((b) => b.value === value && b.loaded);
     if (boostSet != undefined) return true;
@@ -148,6 +160,7 @@ export class BoostGroup implements IBoostGroup {
 }
 
 export interface IPowerset {
+  loadedN: boolean; //Quick reference instead of loop.
   label?: string;
   value?: string; //Blaster_Ranged.Assault_Rifle
   description?: string;
@@ -159,6 +172,7 @@ export interface IPowerset {
 }
 
 export class Powerset {
+  loadedN = false;
   label = '';
   value = '';
   description = '';
@@ -175,10 +189,11 @@ export class Powerset {
   }
 
   public get loaded() {
+    if (this.loadedN) return true;
     if (this.powers.length < 1) return false;
-    for (const power of this.powers) {
-      if (!power.loaded) return false;
-    }
+    const power = this.powers.find((p) => p.loaded == false);
+    if (power != undefined) return false;
+    this.loadedN = true;
     return true;
   }
 }

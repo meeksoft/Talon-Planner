@@ -145,8 +145,11 @@ export default defineComponent({
       if (this.buildSlot.enhancementSlots.length < val + 1) return;
       const enhancementSlotMenu = this.$refs['enhancementSlotMenu' + val][0];
       if (enhancementSlotMenu == undefined) return;
-      enhancementSlotMenu.show();
-      //console.log(this.buildSlot.enhancementSlots[val]);
+      if (enhancementSlotMenu.isOpen()) {
+        enhancementSlotMenu.hide();
+      } else {
+        enhancementSlotMenu.show();
+      }
     },
     testClick() {
       console.log('Test Click');
