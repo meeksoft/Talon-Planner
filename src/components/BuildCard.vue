@@ -272,7 +272,7 @@ export default defineComponent({
 }
 
 .group-column-long {
-  height: calc(100vh - 170px);
+  height: calc(var(--vh, 1vh) * 100 - 170px);
   overflow: auto;
 }
 

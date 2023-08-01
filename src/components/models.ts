@@ -21,9 +21,10 @@ export interface Meta {
 }
 
 export interface IPower {
+  loaded: boolean;
   level: number;
-  label: string;
-  value: string;
+  label: string; //"name": "Beanbag",
+  value: string; //"full_name": "Blaster_Ranged.Assault_Rifle.Beanbag"
   tooltip: string;
   icon: string;
   description: string;
@@ -36,6 +37,7 @@ export interface IPower {
 }
 
 export class Power implements IPower {
+  loaded = false;
   level = -1;
   label = '';
   value = '';
@@ -104,6 +106,7 @@ export class Boost implements IBoost {
 export const EmptyBoost = new Boost();
 
 export interface IBoostSet {
+  loaded: boolean;
   label: string; //Display Name
   value: string; //Name
   icon: string;
@@ -113,6 +116,7 @@ export interface IBoostSet {
 }
 
 export class BoostSet implements IBoostSet {
+  loaded = false;
   label = '';
   value = '';
   icon = '';
@@ -135,11 +139,17 @@ export class BoostGroup implements IBoostGroup {
   icon = '';
   boost = new Boost();
   boostSets = [] as BoostSet[];
+
+  public isLoaded(value: string) {
+    const boostSet = this.boostSets.find((b) => b.value === value && b.loaded);
+    if (boostSet != undefined) return true;
+    return false;
+  }
 }
 
 export interface IPowerset {
   label?: string;
-  value?: string;
+  value?: string; //Blaster_Ranged.Assault_Rifle
   description?: string;
   icon?: string;
   powersetFolder?: string; //Main folder; blaster_ranged
@@ -162,6 +172,14 @@ export class Powerset {
     this.label = params.label ?? '';
     this.icon = params.icon ?? '';
     this.powers = params.powers ?? ([] as Power[]);
+  }
+
+  public get loaded() {
+    if (this.powers.length < 1) return false;
+    for (const power of this.powers) {
+      if (!power.loaded) return false;
+    }
+    return true;
   }
 }
 

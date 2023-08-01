@@ -14,7 +14,8 @@
         <q-toolbar-title> Talon Planer </q-toolbar-title>
 
         <div>
-          v{{ $q.version }} -
+          Quasar v{{ $q.version }}
+          <br />
           {{ getGitHash }}
         </div>
       </q-toolbar>
@@ -27,11 +28,22 @@
           <q-tooltip>Dummy Menu</q-tooltip>
         </span>
         <q-space />
+        <q-btn
+          flat
+          round
+          dense
+          :icon="store.isFetching ? 'cloud_sync' : 'cloud_download'"
+          @click="downloadDatabase()"
+          :disable="store.isFetching"
+        >
+          <q-tooltip>Download Entire Database into App</q-tooltip>
+        </q-btn>
         <span>
           <q-toggle
             v-model="debugToggleModel"
             icon="report_problem"
             aria-label="Console Debug Toggle"
+            color="red"
             @click="
               store.showDebugConsoleErrors = !store.showDebugConsoleErrors
             "
@@ -142,6 +154,11 @@ export default defineComponent({
   computed: {
     getGitHash() {
       return process.env.VUE_APP_GIT_HASH;
+    },
+  },
+  methods: {
+    async downloadDatabase() {
+      this.store.fetchDatabaseAgain();
     },
   },
 });

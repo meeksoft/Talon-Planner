@@ -11,7 +11,7 @@
 const { configure } = require('quasar/wrappers');
 const { gitDescribeSync } = require('git-describe');
 
-module.exports = configure(function (/* ctx */) {
+module.exports = configure(function (ctx) {
   return {
     eslint: {
       // fix: true,
@@ -84,7 +84,15 @@ module.exports = configure(function (/* ctx */) {
     devServer: {
       // https: true
       open: false, // opens browser window automatically
-      port: 3223,
+      port: ctx.mode.spa
+        ? 3223
+        : ctx.mode.ssr
+        ? 3224
+        : ctx.mode.pwa
+        ? 3225
+        : ctx.mode.ssg
+        ? 3226
+        : 3227,
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework

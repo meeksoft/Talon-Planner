@@ -153,14 +153,14 @@ export default defineComponent({
   // },
   watch: {
     selectModel: {
-      deep: true,
-      handler: function () {
+      deep: false,
+      handler: async function () {
         this.powersetModel = this.selectModel;
         this.updatePowerset(this.selectModel);
       },
     },
     powersetModel: {
-      deep: true,
+      deep: false,
       handler: function () {
         this.$refs.PowersetExpansionItem.show();
       },
@@ -183,8 +183,9 @@ export default defineComponent({
     mouseenter(e, power) {
       this.store.uiSelectedPower = power;
     },
-    updatePowerset(powerset) {
+    async updatePowerset(powerset) {
       console.log('updatePowerset');
+      await this.store.fetchPowerset(powerset);
       this.powers = powerset.powers;
       this.powersetPowersModel = []; //Trigger refresh
     },
@@ -235,7 +236,7 @@ export default defineComponent({
 
 @media (min-width: 1024px) {
   .powerset-card-list {
-    max-height: calc(100vh - 187px);
+    max-height: calc(var(--vh, 1vh) * 100 - 187px);
     overflow: auto;
   }
 }

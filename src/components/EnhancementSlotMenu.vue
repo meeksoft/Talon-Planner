@@ -22,12 +22,8 @@
               style="float: left"
               @click.capture.stop="addEnhancement(enh)"
             >
-              <q-tooltip
-                >{{ enh.group.replace(/_/g, ' ') }}<br />{{
-                  enh.label
-                }}</q-tooltip
-              ></q-btn
-            >
+              <q-tooltip><div v-html="this.boostToolTip(enh)"></div></q-tooltip
+            ></q-btn>
           </div>
         </div>
       </q-card-section>
@@ -83,6 +79,7 @@ export default {
           for (const boostGroup of this.store.boostGroups) {
             if (boostGroup.label == boost.label) {
               for (const boostSet of boostGroup.boostSets) {
+                console.log(boostSet.label);
                 list.push(boostSet.boosts);
               }
               break;
@@ -94,11 +91,30 @@ export default {
     },
   },
   methods: {
-    show() {
+    async show() {
       this.$refs.enhancementSlotMenu.show();
+      for (const boost of this.buildSlot.power.boosts) {
+        if (boost.group != 'generic') {
+          /* Loop through all boost sets of that type. */
+          for (const boostGroup of this.store.boostGroups) {
+            if (boostGroup.label == boost.label) {
+              for (const boostSet of boostGroup.boostSets) {
+                await this.store.fetchBoostset(boostSet);
+              }
+              break;
+            }
+          }
+        }
+      }
     },
     hide() {
       this.$refs.enhancementSlotMenu.hide();
+    },
+    boostToolTip(boost) {
+      if (boost.group) {
+        return boost.group.replace(/_/g, ' ') + '<br />' + boost.label;
+      }
+      return boost.label;
     },
     addEnhancement(selectedEnhancement) {
       this.hide();

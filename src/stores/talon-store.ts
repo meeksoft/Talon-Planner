@@ -36,6 +36,9 @@ export const useTalonStore = defineStore('talon', {
     uiSelectedPower: EmptyPower, //MouseEnter Power
     uiSelectedBuildSlot: EmptyBuildSlot, //Selected Build Slot.
 
+    fetchLoadType: 0, //-1 is Don't load, 0 is don't await, 1 is await.
+    isFetching: false,
+
     fileTypeOptions: [
       { label: 'MBD 3.5.5.7', value: 'MBD' },
       { label: 'MXD (Legacy)', value: 'MXD' },
@@ -225,6 +228,127 @@ export const useTalonStore = defineStore('talon', {
     },
     //#endregion Utility
     //#region Fetch
+    async fetchDatabase() {
+      /* Clear anything that the individual functions won't clear.*/
+
+      /* Begin Fetches */
+      this.isFetching = true;
+      const steps = 8;
+
+      const notif = this.$q.notify({
+        type: 'ongoing',
+        color: 'info',
+        position: 'bottom-right',
+        caption: '0%',
+        message: 'Loading Boosts.',
+      });
+      await this.fetchBoosts();
+      notif({
+        caption: `${(100 / steps).toFixed(0)}%`,
+        message: 'Loading Boost sets.',
+      });
+      await this.fetchBoostsets(this.fetchLoadType);
+
+      notif({
+        caption: `${(200 / steps).toFixed(0)}%`,
+        message: 'Loading Archetypes.',
+      });
+      await this.fetchArchetypes();
+
+      notif({
+        caption: `${(300 / steps).toFixed(0)}%`,
+        message: 'Loading Power sets.',
+      });
+      await this.fetchPowersets();
+
+      notif({
+        caption: `${(400 / steps).toFixed(0)}%`,
+        message: 'Loading Epics.',
+      });
+      await this.fetchEpics();
+
+      notif({
+        caption: `${(500 / steps).toFixed(0)}%`,
+        message: 'Loading Pools.',
+      });
+      await this.fetchPools();
+
+      // TODO: Temporary Powers
+      notif({
+        caption: `${(600 / steps).toFixed(0)}%`,
+        message: 'Loading Temporary.',
+      });
+
+      notif({
+        caption: `${(700 / steps).toFixed(0)}%`,
+        message: 'Loading Inherits.',
+      });
+      await this.fetchInherents();
+      //console.log(this.inherents);
+
+      await this.mapBuildInherents(); //Add Inherents to Build.
+
+      notif({
+        type: 'positive',
+        color: 'positive',
+        caption: '100%',
+        message: 'Loading is Pau!',
+      });
+
+      this.isFetching = false;
+    },
+    async fetchDatabaseAgain() {
+      /* Clear anything that the individual functions won't clear.*/
+
+      /* Begin Fetches */
+      this.isFetching = true;
+      const steps = 3;
+
+      const notif = this.$q.notify({
+        type: 'ongoing',
+        color: 'info',
+        position: 'bottom-right',
+        caption: '0%',
+        message: 'Loading Pools.',
+      });
+      for (const powerset of this.pools) {
+        await this.fetchPowerset(powerset, 1);
+      }
+
+      notif({
+        caption: `${(100 / steps).toFixed(0)}%`,
+        message: 'Loading Powersets.',
+      });
+      for (const archetype of this.archetypes) {
+        for (const powerset of archetype.primaryPowersets) {
+          await this.fetchPowerset(powerset, 1);
+        }
+        for (const powerset of archetype.secondaryPowersets) {
+          await this.fetchPowerset(powerset, 1);
+        }
+      }
+
+      notif({
+        caption: `${(200 / steps).toFixed(0)}%`,
+        message: 'Loading Boost Sets.',
+      });
+      for (const boostGroup of this.boostGroups) {
+        for (const boostSet of boostGroup.boostSets) {
+          if (!boostSet.loaded) {
+            await this.fetchBoostset(boostSet, boostGroup.value);
+          }
+        }
+      }
+
+      notif({
+        type: 'positive',
+        color: 'positive',
+        caption: '100%',
+        message: 'Loading is Pau!',
+      });
+
+      this.isFetching = false;
+    },
     async fetchBoosts() {
       /* Read from our custom file to load all types of boosts */
       const response = await api.get('/json/talonplanner/boosts.json');
@@ -253,7 +377,7 @@ export const useTalonStore = defineStore('talon', {
         this.boostGroups.push(boostGroup);
       });
     },
-    async fetchBoostsets() {
+    async fetchBoostsets(fetchLoadType = 1) {
       /* Grab all Boostsets from index.json.
          We will compare this to the groups json. */
       // const response = await api.get('/json/homecoming/boost_sets/index.json');
@@ -292,47 +416,66 @@ export const useTalonStore = defineStore('talon', {
       /* Load BoostSets */
       for (const boostGroup of this.boostGroups) {
         for (const boostSet of boostGroup.boostSets) {
-          await api
-            .get('/json/homecoming/boost_sets/' + boostSet.value + '.json')
-            .then((res) => {
-              boostSet.conversionGroups = res.data.conversion_groups;
+          if (!boostSet.loaded) {
+            switch (fetchLoadType) {
+              case 0:
+                this.fetchBoostset(boostSet, boostGroup.value);
+                break;
+              case 1:
+                await this.fetchBoostset(boostSet, boostGroup.value);
+                break;
 
-              let icon = res.data.computed.icons[0];
-              switch (boostSet.conversionGroups[0]) {
-                case 'Rarity: Archetype':
-                case 'Rarity: Superior Archetype':
-                  icon = 'AO_' + boostSet.label.replace(/ /g, '_') + '.png';
-                  break;
-                case 'Rarity: Summer Blockbuster Double Feature':
-                  icon = 'SBB_' + boostSet.label.replace(/ /g, '_') + '.png';
-                  break;
-                case 'Rarity: Winter Pack Series':
-                case 'Rarity: Superior Winter Pack Series':
-                  icon = 'WO_' + boostSet.label.replace(/ /g, '_') + '.png';
-                  break;
-                default:
-                  icon = 'IO_' + boostSet.label.replace(/ /g, '_') + '.png';
-                  break;
-              }
-              boostSet.icon = 'img:/icon/boosts/sets/' + icon;
-              boostSet.bonuses = res.data.computed.bonuses;
-
-              /* Load each boost */
-              const numOfBoosts = res.data.boost_lists.length;
-              for (let i = 0; i < numOfBoosts; i++) {
-                const boost = new Boost();
-                boost.label = res.data.computed.boosts[i][0];
-                boost.group = boostGroup.value;
-                boost.icon = boostSet.icon;
-                boost.aspects = res.data.computed.boost_infos[i * 2];
-                boostSet.boosts.push(boost);
-              }
-            })
-            .catch((errors) => {
-              console.log(errors);
-            });
+              default:
+                break;
+            }
+          }
         }
       }
+    },
+    async fetchBoostset(boostSet: BoostSet, groupName: string) {
+      if (boostSet.loaded) return;
+
+      await api
+        .get('/json/homecoming/boost_sets/' + boostSet.value + '.json')
+        .then((res) => {
+          boostSet.conversionGroups = res.data.conversion_groups;
+
+          let icon = res.data.computed.icons[0];
+          switch (boostSet.conversionGroups[0]) {
+            case 'Rarity: Archetype':
+            case 'Rarity: Superior Archetype':
+              icon = 'AO_' + boostSet.label.replace(/ /g, '_') + '.png';
+              break;
+            case 'Rarity: Summer Blockbuster Double Feature':
+              icon = 'SBB_' + boostSet.label.replace(/ /g, '_') + '.png';
+              break;
+            case 'Rarity: Winter Pack Series':
+            case 'Rarity: Superior Winter Pack Series':
+              icon = 'WO_' + boostSet.label.replace(/ /g, '_') + '.png';
+              break;
+            default:
+              icon = 'IO_' + boostSet.label.replace(/ /g, '_') + '.png';
+              break;
+          }
+          boostSet.icon = 'img:/icon/boosts/sets/' + icon;
+          boostSet.bonuses = res.data.computed.bonuses;
+
+          /* Load each boost */
+          const numOfBoosts = res.data.boost_lists.length;
+          for (let i = 0; i < numOfBoosts; i++) {
+            const boost = new Boost();
+            boost.label = res.data.computed.boosts[i][0];
+            boost.group = groupName;
+            boost.icon = boostSet.icon;
+            boost.aspects = res.data.computed.boost_infos[i * 2];
+            boostSet.boosts.push(boost);
+          }
+
+          boostSet.loaded = true;
+        })
+        .catch((errors) => {
+          console.log(errors);
+        });
     },
     async fetchArchetypes() {
       this.archetypes.length = 0;
@@ -433,53 +576,70 @@ export const useTalonStore = defineStore('talon', {
 
         //Load Powers
         for (const powerset of archetype.primaryPowersets) {
-          await this.fetchPowerset(powerset);
+          await this.fetchPowerset(powerset, this.fetchLoadType);
         }
         for (const powerset of archetype.secondaryPowersets) {
-          await this.fetchPowerset(powerset);
+          await this.fetchPowerset(powerset, this.fetchLoadType);
         }
       }
     },
-    async fetchPowerset(powerset: Powerset) {
+    async fetchPowerset(powerset: Powerset, fetchLoadType = 1) {
       // const powersetName = powerset.value.replace(/\./g, '/');
       // const categoryName = powersetName.split('/')[1].replace(/_/g, '');
 
-      /* Load Powers for this Powerset */
-      const powersetPath = (
-        '/json/homecoming/powers/' +
-        powerset.powersetFolder +
-        '/' +
-        powerset.powerFolder +
-        '/index.json'
-      ).toLowerCase();
-      await api
-        .get(powersetPath)
-        .then((res) => {
-          this.setPowersetIcon(powerset);
-          powerset.description = res.data.display_help;
+      if (powerset.loaded) {
+        console.info('Powerset already loaded: ' + powerset.label);
+        return;
+      }
 
-          /* for each power */
-          for (
-            let index = 0;
-            index < res.data.power_display_names.length;
-            index++
-          ) {
-            const power = new Power();
-            power.label = res.data.power_display_names[index];
-            power.value = res.data.power_names[index];
-            power.tooltip = res.data.power_short_helps[index];
-            //power.icon: this.guessIcon(res.data.power_names[index]),
-            power.level = res.data.available_level[index];
-            power.powersetType = powerset.powersetType;
-            powerset.powers.push(power);
-          }
-        })
-        .catch((errors) => {
-          console.log(errors);
-        });
+      /* Load Powers for this Powerset */
+      if (powerset.powers.length < 1) {
+        const powersetPath = (
+          '/json/homecoming/powers/' +
+          powerset.powersetFolder +
+          '/' +
+          powerset.powerFolder +
+          '/index.json'
+        ).toLowerCase();
+        await api
+          .get(powersetPath)
+          .then((res) => {
+            this.setPowersetIcon(powerset);
+            powerset.description = res.data.display_help;
+
+            /* for each power */
+            for (
+              let index = 0;
+              index < res.data.power_display_names.length;
+              index++
+            ) {
+              const power = new Power();
+              power.label = res.data.power_display_names[index];
+              power.value = res.data.power_names[index];
+              power.tooltip = res.data.power_short_helps[index];
+              //power.icon: this.guessIcon(res.data.power_names[index]),
+              power.level = res.data.available_level[index];
+              power.powersetType = powerset.powersetType;
+              powerset.powers.push(power);
+            }
+          })
+          .catch((errors) => {
+            console.log(errors);
+          });
+      }
 
       for (const power of powerset.powers) {
-        await this.fetchPower(power);
+        switch (fetchLoadType) {
+          case 0:
+            this.fetchPower(power);
+            break;
+          case 1:
+            await this.fetchPower(power);
+            break;
+
+          default:
+            break;
+        }
       }
     },
     async fetchPower(power: Power) {
@@ -516,6 +676,7 @@ export const useTalonStore = defineStore('talon', {
             if (boost == null) return false;
             power.boosts.push(boost);
           });
+          power.loaded = true;
         })
         .catch((errors) => {
           console.log(errors);
@@ -540,7 +701,7 @@ export const useTalonStore = defineStore('talon', {
         powerset.powersetFolder = powersetFolder;
         powerset.powerFolder = powerFolder;
         powerset.icon = 'golf_course';
-        powerset.powersetType = 4;
+        powerset.powersetType = PowersetType.EPIC;
 
         epics.push(powerset);
       }
@@ -593,13 +754,13 @@ export const useTalonStore = defineStore('talon', {
         powerset.powersetFolder = powersetFolder;
         powerset.powerFolder = powerFolder;
         powerset.icon = 'golf_course';
-        powerset.powersetType = 4;
+        powerset.powersetType = PowersetType.POOL;
 
         this.pools.push(powerset);
       }
 
       for (const powerset of this.pools) {
-        await this.fetchPowerset(powerset);
+        await this.fetchPowerset(powerset, this.fetchLoadType);
       }
 
       //Sort Array.
@@ -631,13 +792,13 @@ export const useTalonStore = defineStore('talon', {
         powerset.powersetFolder = powersetFolder;
         powerset.powerFolder = powerFolder;
         powerset.icon = 'golf_course';
-        powerset.powersetType = 5;
+        powerset.powersetType = PowersetType.INHERIT;
 
         this.inherents.push(powerset);
       }
 
       for (const powerset of this.inherents) {
-        await this.fetchPowerset(powerset);
+        await this.fetchPowerset(powerset, this.fetchLoadType);
       }
 
       //Sort Array.
@@ -659,7 +820,8 @@ export const useTalonStore = defineStore('talon', {
         for (let numPowers = 0; numPowers < level['powers']; numPowers++) {
           const buildSlot = new BuildSlot();
           buildSlot.level = level['level'];
-          buildSlot.powersetType = level['powers'] < 2 ? 0 : numPowers + 1;
+          buildSlot.powersetType =
+            level['powers'] < 2 ? PowersetType.ANY : numPowers + 1;
           this.buildSlots.push(buildSlot);
         }
 
@@ -679,14 +841,14 @@ export const useTalonStore = defineStore('talon', {
       for (const inherentItem of inherentsList) {
         const buildSlot = new BuildSlot();
         buildSlot.disabled = true;
-        buildSlot.powersetType = 5;
+        buildSlot.powersetType = PowersetType.INHERIT;
         const power = new Power();
         power.value = inherentItem;
         buildSlot.power = power;
         this.inherentSlots.push(buildSlot);
       }
     },
-    mapBuildInherents() {
+    async mapBuildInherents() {
       for (const buildSlot of this.inherentSlots) {
         for (const powerset of this.inherents) {
           for (const power of powerset.powers) {
@@ -694,6 +856,9 @@ export const useTalonStore = defineStore('talon', {
               buildSlot.disabled = false;
               buildSlot.level = power.level + 1; //Zero Indexed Powers
               this.assignPowerToBuildSlot(power, buildSlot);
+              if (!power.loaded) {
+                await this.fetchPower(power);
+              }
             }
           }
           if (!buildSlot.disabled) break;
@@ -793,7 +958,7 @@ export const useTalonStore = defineStore('talon', {
 
       /* Handle slots that are only assigned to a powerset */
       if (
-        selectedBuildSlot.powersetType > 0 &&
+        selectedBuildSlot.powersetType > PowersetType.ANY &&
         selectedBuildSlot.powersetType != selectedPower.powersetType
       )
         return false;
@@ -1134,7 +1299,7 @@ export const useTalonStore = defineStore('talon', {
         }
 
         let buildSlot = null;
-        if (power.powersetType == 5) {
+        if (power.powersetType == PowersetType.INHERIT) {
           for (const iSlot of this.inherentSlots) {
             if (iSlot.power == power) {
               buildSlot = iSlot;

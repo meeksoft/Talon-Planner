@@ -83,6 +83,7 @@
 import { defineComponent } from 'vue';
 import { useTalonStore } from 'stores/talon-store';
 import EnhancementSlotMenu from 'components/EnhancementSlotMenu.vue';
+import { PowersetType } from './models';
 export default defineComponent({
   name: 'BuildSlot',
   components: { EnhancementSlotMenu },
@@ -137,7 +138,8 @@ export default defineComponent({
     },
     iconClick() {
       if (this.isEmptySlot()) return;
-      this.store.removeBuildSlotFromBuild(this.buildSlot);
+      if (this.buildSlot.power.powersetType == PowersetType.INHERIT) return;
+      this.store.emptyBuildSlot(this.buildSlot);
     },
     enClick(val) {
       if (this.buildSlot.enhancementSlots.length < val + 1) return;

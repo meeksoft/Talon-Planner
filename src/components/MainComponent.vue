@@ -322,7 +322,6 @@
 
 <script>
 import { defineComponent, computed, ref, toRef } from 'vue';
-import { useQuasar } from 'quasar';
 import { useTalonStore } from 'stores/talon-store';
 import { PowersetType } from 'components/models';
 import MultiViewer from 'components/MultiViewer.vue';
@@ -398,82 +397,24 @@ export default defineComponent({
     };
   },
   async mounted() {
-    const $q = useQuasar();
-    let notifyConfig = {
-      type: 'ongoing',
-      color: 'info',
-      position: 'bottom-right',
-      caption: '0%',
-      message: '',
-    };
-
-    const steps = 8;
-    let tempModel = [];
-
     /* BAR needs to track better */
     this.bar.start();
 
-    const notif = $q.notify({ ...notifyConfig, message: 'Loading Boosts.' });
-    await this.store.fetchBoosts();
-    notif({
-      caption: `${(100 / steps).toFixed(0)}%`,
-      message: 'Loading Boost sets.',
-    });
-    await this.store.fetchBoostsets();
-
-    notif({
-      caption: `${(200 / steps).toFixed(0)}%`,
-      message: 'Loading Archetypes.',
-    });
-    await this.store.fetchArchetypes();
-    this.archetypeOptions = this.store.archetypes;
-    tempModel = this.store.archetypeModel;
-    this.store.archetypeModel = []; //Trigger Refreshes
-    this.store.archetypeModel = tempModel;
-
-    notif({
-      caption: `${(300 / steps).toFixed(0)}%`,
-      message: 'Loading Power sets.',
-    });
-    await this.store.fetchPowersets();
-
-    notif({
-      caption: `${(400 / steps).toFixed(0)}%`,
-      message: 'Loading Epics.',
-    });
-    await this.store.fetchEpics();
-
-    notif({
-      caption: `${(500 / steps).toFixed(0)}%`,
-      message: 'Loading Pools.',
-    });
-    await this.store.fetchPools();
-    this.poolOptions = this.store.pools;
-
-    // TODO: Temporary Powers
-    notif({
-      caption: `${(600 / steps).toFixed(0)}%`,
-      message: 'Loading Temporary.',
-    });
-
-    notif({
-      caption: `${(700 / steps).toFixed(0)}%`,
-      message: 'Loading Inherits.',
-    });
-    await this.store.fetchInherents();
-    this.inherentSelected = this.store.inherents[0];
-    //console.log(this.store.inherents);
-
-    this.store.mapBuildInherents(); //Add Inherents to Build.
-
-    notif({
-      type: 'positive',
-      color: 'positive',
-      caption: '100%',
-      message: 'Loading is Pau!',
-    });
+    if (window.__TAURI__) {
+      this.store.fetchLoadType = 1;
+    } else {
+      this.store.fetchLoadType = -1;
+    }
+    await this.store.fetchDatabase();
 
     /* Trigger Refreshes */
+    this.archetypeOptions = this.store.archetypes;
+    let tempModel = this.store.archetypeModel;
+    this.store.archetypeModel = []; //Trigger Refreshe
+    this.store.archetypeModel = tempModel;
+    this.poolOptions = this.store.pools;
+    this.inherentSelected = this.store.inherents[0];
+    //console.log(this.store.inherents);
     this.poolPowersetCard1 = [];
     this.poolPowersetCard2 = [];
     this.poolPowersetCard3 = [];
@@ -497,26 +438,29 @@ export default defineComponent({
   },
   watch: {
     archetypeModel: {
-      deep: true,
+      deep: false,
       handler: function () {
         this.updatePowersets(this.store.archetypeModel);
       },
     },
     primaryModel: {
-      deep: true,
-      handler: function () {
+      deep: false,
+      handler: async function () {
+        await this.store.fetchPowerset(this.store.primaryModel);
         this.updatePrimary(this.store.primaryModel);
       },
     },
     secondaryModel: {
-      deep: true,
-      handler: function () {
+      deep: false,
+      handler: async function () {
+        await this.store.fetchPowerset(this.store.secondaryModel);
         this.updateSecondary(this.store.secondaryModel);
       },
     },
     epicModel: {
-      deep: true,
-      handler: function () {
+      deep: false,
+      handler: async function () {
+        await this.store.fetchPowerset(this.store.epicModel);
         this.updateEpic(this.store.epicModel);
       },
     },
@@ -528,13 +472,13 @@ export default defineComponent({
       this.secondaryOptions = archetype.secondaryPowersets;
       this.epicOptions = archetype.epicPowersets;
     },
-    updatePrimary(powerset) {
+    async updatePrimary(powerset) {
       this.primarySelected = powerset;
     },
-    updateSecondary(powerset) {
+    async updateSecondary(powerset) {
       this.secondarySelected = powerset;
     },
-    updateEpic(powerset) {
+    async updateEpic(powerset) {
       this.epicSelected = powerset;
     },
     updateModel(model, value) {
@@ -567,7 +511,7 @@ export default defineComponent({
   }
 
   .first-group-body {
-    height: calc(100vh - 170px);
+    height: calc(var(--vh, 1vh) * 100 - 170px);
     overflow: auto;
   }
 }
