@@ -105,7 +105,7 @@ export default {
             if (boostGroup.label == boost.label) {
               for (const boostSet of boostGroup.boostSets) {
                 if (!boostSet.loaded) {
-                  await this.store.fetchBoostset(boostSet);
+                  await this.store.fetchBoostset(boostSet, boostGroup.value);
                 }
               }
               break;

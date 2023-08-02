@@ -117,7 +117,6 @@
 import { defineComponent, ref } from 'vue';
 import { exportFile } from 'quasar';
 import { useTalonStore } from 'stores/talon-store';
-import axios from 'axios';
 import { open } from '@tauri-apps/api/dialog';
 import { readTextFile } from '@tauri-apps/api/fs';
 import BuildSlot from 'components/BuildSlot.vue';
@@ -160,7 +159,7 @@ export default defineComponent({
     };
   },
   mounted() {
-    this.fetchBuildLevels();
+    this.store.fetchBuildLevels();
   },
   computed: {
     hasWindow() {
@@ -168,29 +167,6 @@ export default defineComponent({
     },
   },
   methods: {
-    async fetchBuildLevels() {
-      const response = await axios.get('/json/talonplanner/leveling.json');
-      const levels = [];
-
-      /* Save Levels Information */
-      let level = {};
-      for (let index = 0; index < response.data.levels.length; index++) {
-        level = {
-          index: index,
-          level: response.data.levels[index].level,
-          powers: response.data.levels[index].powers,
-          slots: response.data.levels[index].slots,
-        };
-        levels.push(level);
-      }
-
-      const inherentsList = [];
-      for (let index = 0; index < response.data.inherents.length; index++) {
-        inherentsList.push(response.data.inherents[index]);
-      }
-
-      this.store.buildEmptyBuild(levels, inherentsList);
-    },
     newBuildClick() {
       this.store.emptyBuild();
     },

@@ -20,6 +20,12 @@ export interface Meta {
   totalCount: number;
 }
 
+export interface ILevel {
+  level: number;
+  powers: number;
+  slots: number;
+}
+
 export interface IPower {
   loaded: boolean;
   level: number;
@@ -145,22 +151,24 @@ export class BoostGroup implements IBoostGroup {
   public get loaded() {
     if (this.loadedN) return true;
     if (this.boostSets.length < 1) return false;
-    const boostSet = this.boostSets.find((b) => b.loaded == false);
-    if (boostSet != undefined) return false;
+    const index = this.boostSets.findIndex((b) => b.loaded == false);
+    if (index >= 0) return false;
     this.loadedN = true;
     return true;
   }
 
   //Is a BoostSet loaded.
   public isLoaded(value: string) {
-    const boostSet = this.boostSets.find((b) => b.value === value && b.loaded);
-    if (boostSet != undefined) return true;
+    const index = this.boostSets.findIndex(
+      (b) => b.value === value && b.loaded
+    );
+    if (index >= 0) return true;
     return false;
   }
 }
 
 export interface IPowerset {
-  loadedN: boolean; //Quick reference instead of loop.
+  loadedN: boolean;
   label?: string;
   value?: string; //Blaster_Ranged.Assault_Rifle
   description?: string;
@@ -183,6 +191,7 @@ export class Powerset {
   powers = [] as Power[];
 
   constructor(params: IPowerset = {} as IPowerset) {
+    this.loadedN = false;
     this.label = params.label ?? '';
     this.icon = params.icon ?? '';
     this.powers = params.powers ?? ([] as Power[]);
@@ -191,8 +200,8 @@ export class Powerset {
   public get loaded() {
     if (this.loadedN) return true;
     if (this.powers.length < 1) return false;
-    const power = this.powers.find((p) => p.loaded == false);
-    if (power != undefined) return false;
+    const index = this.powers.findIndex((p) => p.loaded == false);
+    if (index >= 0) return false;
     this.loadedN = true;
     return true;
   }

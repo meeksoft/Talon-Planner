@@ -22,6 +22,7 @@ import {
   PowerEntry,
   Enhancement,
   PowersetType,
+  ILevel,
 } from 'src/components/models';
 
 export const useTalonStore = defineStore('talon', {
@@ -57,36 +58,43 @@ export const useTalonStore = defineStore('talon', {
       icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Primary Set',
       powers: [] as Power[],
+      loadedN: false,
     }),
     secondaryModel: new Powerset({
       icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Secondary Set',
       powers: [] as Power[],
+      loadedN: false,
     }),
     epicModel: new Powerset({
       icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Epic Set',
       powers: [] as Power[],
+      loadedN: false,
     }),
     pool1Model: new Powerset({
       icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Pool Set',
       powers: [] as Power[],
+      loadedN: false,
     }),
     pool2Model: new Powerset({
       icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Pool Set',
       powers: [] as Power[],
+      loadedN: false,
     }),
     pool3Model: new Powerset({
       icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Pool Set',
       powers: [] as Power[],
+      loadedN: false,
     }),
     pool4Model: new Powerset({
       icon: 'img:/icon/other/1332516744.svg',
       label: 'Select Pool Set',
       powers: [] as Power[],
+      loadedN: false,
     }),
 
     originModel: ref({
@@ -410,7 +418,7 @@ export const useTalonStore = defineStore('talon', {
       /* Read from our custom file to load all types of boosts */
       const response = await api.get('/json/talonplanner/boosts.json');
       this.genericBoosts.length = 0;
-      response.data.generics.forEach((dataBoost: any) => {
+      for (const dataBoost of response.data.generics) {
         const boost = new Boost();
         boost.label = dataBoost.name;
         boost.value = dataBoost.type;
@@ -418,21 +426,21 @@ export const useTalonStore = defineStore('talon', {
         const icon = dataBoost.icon.replace(/IO_/, 'TO_Training_');
         boost.icon = 'img:/icon/boosts/generic/' + icon;
         this.genericBoosts.push(boost);
-      });
+      }
 
       this.boostGroups.length = 0;
-      response.data.categories.forEach((dataBoost: any) => {
+      for (const dataBoost of response.data.categories) {
         const boostGroup = new BoostGroup();
         boostGroup.label = dataBoost.name;
         boostGroup.value = dataBoost.name.replace(/ /g, '_');
         boostGroup.icon = 'img:/icon/boosts/generic/' + dataBoost.icon;
 
         boostGroup.boost.label = dataBoost.name;
-        boostGroup.boost.value = dataBoost.name.replace;
+        boostGroup.boost.value = dataBoost.name.replace(/ /g, '_');
         boostGroup.boost.group = 'category';
         boostGroup.boost.icon = 'img:/icon/boosts/generic/' + dataBoost.icon;
         this.boostGroups.push(boostGroup);
-      });
+      }
     },
     async fetchBoostsets(fetchLoadType = 1) {
       /* Grab all Boostsets from index.json.
@@ -866,7 +874,30 @@ export const useTalonStore = defineStore('talon', {
       });
     },
     //#endregion Fetch
-    buildEmptyBuild(levels: Array<any>, inherentsList: Array<string>) {
+    //#region Build Build
+    async fetchBuildLevels() {
+      const response = await api.get('/json/talonplanner/leveling.json');
+      const levels = [];
+
+      /* Save Levels Information */
+      let level = {};
+      for (let index = 0; index < response.data.levels.length; index++) {
+        level = {
+          level: response.data.levels[index].level,
+          powers: response.data.levels[index].powers,
+          slots: response.data.levels[index].slots,
+        };
+        levels.push(level);
+      }
+
+      const inherentsList = [];
+      for (let index = 0; index < response.data.inherents.length; index++) {
+        inherentsList.push(response.data.inherents[index]);
+      }
+
+      this.buildEmptyBuild(levels as Array<ILevel>, inherentsList);
+    },
+    buildEmptyBuild(levels: Array<ILevel>, inherentsList: Array<string>) {
       this.buildSlots.length = 0;
       this.enhancementSlots.length = 0;
 
@@ -937,6 +968,7 @@ export const useTalonStore = defineStore('talon', {
         enhancementSlot.boost = EmptyBoost;
       }
     },
+    //#endregion Build Build
     emptyBuildSlot(buildSlot: BuildSlot, willEmptyPower = true) {
       if (buildSlot.enhancementSlots.length > 0) {
         if (willEmptyPower) {
@@ -1244,7 +1276,7 @@ export const useTalonStore = defineStore('talon', {
 
       return null;
     },
-    loadMBDObject(mbdObject: any) {
+    loadMBDObject(mbdObject: MBDObject) {
       console.log(mbdObject);
 
       /* Set UI Origin */
@@ -1401,10 +1433,10 @@ export const useTalonStore = defineStore('talon', {
           }
 
           /* Assign Enhancement */
-          if (powerEntry.SlotEntries[i].Enhancement == null) continue;
+          const iEnhancement = powerEntry.SlotEntries[i].Enhancement;
+          if (iEnhancement == null) continue;
 
-          const enhancementName =
-            powerEntry.SlotEntries[i].Enhancement.Enhancement;
+          const enhancementName = iEnhancement.Enhancement;
           const enhancement = this.getBoost(enhancementName);
           if (enhancement == null) {
             this.notify('negative', 'Unknown Enhancement ' + enhancementName);
