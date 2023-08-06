@@ -48,12 +48,13 @@
         </q-list>
       </q-card>
 
-      <q-card class="no-border-radius q-pa-md" style="margin: -8px 0 10px 0">
+      <q-card class="no-border-radius q-pa-md" style="height: 100%">
         <q-list
           bordered
           separator
           dense
-          class="rounded-borders text-primary num-columns"
+          class="rounded-borders text-primary grid-columns"
+          style="height: 100%"
         >
           <div v-for="(buildSlot, index) in store.inherentSlots" :key="index">
             <build-slot :buildSlot="buildSlot"></build-slot>
@@ -247,34 +248,59 @@ export default defineComponent({
   columns: 2;
 }
 
+.grid-columns {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(auto-fill, 48px);
+  grid-column-gap: 12px;
+  width: 100%;
+}
+
 .group-column-long {
   height: calc(var(--vh, 1vh) * 100 - 170px);
   overflow: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (min-width: 450px) {
   .num-columns {
     columns: 3;
   }
+  .grid-columns {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 @media (min-width: 600px) {
   .num-columns {
     columns: 2;
+  }
+  .grid-columns {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (min-width: 768px) {
   .num-columns {
     columns: 3;
   }
+  .grid-columns {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 @media (min-width: 1024px) {
   .num-columns {
     columns: 4;
   }
+  .grid-columns {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 @media (min-width: 1440px) {
   .num-columns {
     columns: 4;
+  }
+  .grid-columns {
+    grid-template-columns: repeat(4, 1fr);
   }
   .group-column-long {
     height: auto;

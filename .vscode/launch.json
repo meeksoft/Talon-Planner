@@ -39,6 +39,14 @@
       },
       // task for the `beforeBuildCommand` if used, must be configured in `.vscode/tasks.json`
       "preLaunchTask": "ui:build"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "DEV PWA",
+      "runtimeExecutable": "yarn",
+      "cwd": "${workspaceFolder}",
+      "runtimeArgs": ["dev:pwa"]
     }
   ]
 }

@@ -10,6 +10,7 @@
 
 const { configure } = require('quasar/wrappers');
 const { gitDescribeSync } = require('git-describe');
+const path = require('path');
 
 module.exports = configure(function (ctx) {
   return {
@@ -82,7 +83,6 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
     devServer: {
-      // https: true
       open: false, // opens browser window automatically
       port: ctx.mode.spa
         ? 3223
@@ -93,6 +93,15 @@ module.exports = configure(function (ctx) {
         : ctx.mode.ssg
         ? 3226
         : 3227,
+      https: ctx.mode.pwa
+        ? {
+            // key: path.join(__dirname, './certs/localhost.key'),
+            pfx: path.join(__dirname, './certs/localhost.pfx'),
+            // cert: path.join(__dirname, './certs/localhost.crt'),
+            // ca: path.join(__dirname, './certs/localhost.pem'),
+            passphrase: '1234',
+          }
+        : false,
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework

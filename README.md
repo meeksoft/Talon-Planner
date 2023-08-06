@@ -2,6 +2,8 @@
 
 City of Heroes Planner
 
+[User Manual (Short Format)](/USERMANUAL.MD)
+
 ## Purpose
 
 - Why the name? I'm a Trick Arrow fan since the very beginning.
@@ -73,6 +75,11 @@ _Warnnig_ You may notice in some dev environments, that Workbox will not load yo
 
 Builds PWA about 10mins.
 
+#### PWA SSL
+
+We have `https` configured in the `quasar.config.js` for `devServer`.
+We use localhost.pfx (it has the private key included.)
+
 ### LOCAL Debug
 
 Two step process in VSCode. This is allow us to have break points:
@@ -116,9 +123,17 @@ Builds Quasar SSG about 22mins.
 
 This _needs_ to be worked on, seriously.
 Load speed, caching, number of requests, build speed, etc.
+Should we use a database.
+
+July 27,2023 big issues:
 
 - We have over 5K requests to load the json.
 - We rely heavily on the browser's `disk cache`.
 - Each json file needs to be "processed" when building SSG or Desktop App.
 - Loading json from CDN takes over 12mins.
 - Loading json from Desktop App is about 30seconds.
+
+### Temp Solutions so far
+
+- Reduce the number of unused files (even if they will be in the future) from the public folder.
+- Added "lazy loading" and an option to download the database [aka JSON] into the app.

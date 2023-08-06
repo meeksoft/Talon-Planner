@@ -2,7 +2,7 @@
   <q-item
     clickable
     v-ripple
-    @click="click()"
+    @click="slotClick()"
     :active="power.assigned"
     active-class="bg-teal-1 text-grey-8"
     style="min-height: 0; padding: 0"
@@ -21,6 +21,7 @@
         round
         :icon="power.icon"
         style="left: 10px"
+        @click.capture.stop="iconClick()"
       >
         <!-- <q-tooltip>{{ getPowerTooltip() }}</q-tooltip> -->
       </q-btn>
@@ -91,7 +92,10 @@ export default defineComponent({
     getPowerTooltip() {
       return this.power.boostsAllowed + ' ' + this.power.allowedBoostsetCats;
     },
-    click() {
+    slotClick() {
+      //
+    },
+    iconClick() {
       if (this.power.assigned) {
         this.store.removePowerFromBuild(this.power);
       } else {

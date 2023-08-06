@@ -1,14 +1,14 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "npm run build",
-    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "yarn build",
+    "beforeDevCommand": "yarn dev",
     "devPath": "http://localhost:3223",
     "distDir": "../dist/spa"
   },
   "package": {
-    "productName": "Talon Planner",
-    "version": "0.1.0"
+    "productName": "TalonPlanner",
+    "version": "../package.json"
   },
   "tauri": {
     "allowlist": {

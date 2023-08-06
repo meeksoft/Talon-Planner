@@ -1,80 +1,84 @@
 <template>
-  <q-item
-    clickable
-    v-ripple
-    @click.prevent="itemClick()"
-    @mouseenter="mouseenter($event, power)"
-    :v-model="buildSlot"
-    active-class="border-accent"
-    :active="buildSlot.selected"
-    class="build-slot-item"
-  >
-    <div class="build-slot-item-section no-page-break">
-      <div lines="1" class="build-slot-line-main">
-        <q-item-label style="position: absolute; left: -5px; top: 4px">
-          {{ getSlotLevel(buildSlot.level) }}
-        </q-item-label>
-        <q-btn
-          size="md"
-          padding="0"
-          flat
-          dense
-          round
-          :icon="buildSlot.power.icon"
-          @click.capture.stop="iconClick()"
-          class="build-slot-icon-button"
-        >
-          <q-tooltip>Click - Remove Power</q-tooltip>
-        </q-btn>
-        <span class="text-weight-medium">{{ buildSlot.power.label }}</span>
-      </div>
-    </div>
-  </q-item>
-  <div style="position: absolute; margin-top: -24px">
-    <div
-      v-for="(enhancementSlot, index) in buildSlot.enhancementSlots"
-      :key="index"
-      :v-model="enhancementSlot"
-      v-show="buildSlot.power.label.length > 0"
-      class="build-slot-enhancement-slot"
+  <div class="build-slot no-page-break">
+    <q-item
+      clickable
+      v-ripple
+      @click.prevent="itemClick()"
+      @mouseenter="mouseenter($event, power)"
+      :v-model="buildSlot"
+      active-class="border-accent"
+      :active="buildSlot.selected"
+      class="build-slot-item"
     >
-      <q-btn
-        rounded
-        right-click
-        color="black"
-        size="lg"
-        padding="none"
-        @click.capture.stop="enClick(index)"
-        class="build-slot-enhancement-button"
-      >
-        <q-avatar :size="$q.screen.gt.sm ? 'md' : 'sm'">
-          <img
-            v-show="enhancementSlot.boost.label.length > 0"
-            :src="getEnhancementSlotIcon(index)"
-          />
-          <div
-            v-show="
-              enhancementSlot.boost.label.length < 1 &&
-              enhancementSlot.level > 0
-            "
-            class="build-slot-enhancement-label"
+      <div class="build-slot-item-section">
+        <div lines="1" class="build-slot-line-main">
+          <q-item-label style="position: absolute; left: -5px; top: 4px">
+            {{ getSlotLevel(buildSlot.level) }}
+          </q-item-label>
+          <q-btn
+            size="md"
+            padding="0"
+            flat
+            dense
+            round
+            :icon="buildSlot.power.icon"
+            @click.capture.stop="iconClick()"
+            class="build-slot-icon-button"
           >
-            {{ enhancementSlot.level }}
-          </div>
-        </q-avatar>
-        <q-tooltip>
-          {{
-            enhancementSlot.level < 1 ? buildSlot.level : enhancementSlot.level
-          }}
-          -
-          {{ enhancementSlot.boost.label }}
-        </q-tooltip>
-        <enhancement-slot-menu
-          :ref="'enhancementSlotMenu' + index"
-          :buildSlot="buildSlot"
-          :enhancementSlot="enhancementSlot"
-        ></enhancement-slot-menu>
-      </q-btn>
+            <q-tooltip>Click - Remove Power</q-tooltip>
+          </q-btn>
+          <span class="text-weight-medium">{{ buildSlot.power.label }}</span>
+        </div>
+      </div>
+    </q-item>
+    <div style="margin-top: -24px">
+      <div
+        v-for="(enhancementSlot, index) in buildSlot.enhancementSlots"
+        :key="index"
+        :v-model="enhancementSlot"
+        v-show="buildSlot.power.label.length > 0"
+        class="build-slot-enhancement-slot"
+      >
+        <q-btn
+          rounded
+          right-click
+          color="black"
+          size="lg"
+          padding="none"
+          @click.capture.stop="enClick(index)"
+          class="build-slot-enhancement-button"
+        >
+          <q-avatar :size="$q.screen.gt.md ? 'md' : 'sm'">
+            <img
+              v-show="enhancementSlot.boost.label.length > 0"
+              :src="getEnhancementSlotIcon(index)"
+            />
+            <div
+              v-show="
+                enhancementSlot.boost.label.length < 1 &&
+                enhancementSlot.level > 0
+              "
+              class="build-slot-enhancement-label"
+            >
+              {{ enhancementSlot.level }}
+            </div>
+          </q-avatar>
+          <q-tooltip>
+            {{
+              enhancementSlot.level < 1
+                ? buildSlot.level
+                : enhancementSlot.level
+            }}
+            -
+            {{ enhancementSlot.boost.label }}
+          </q-tooltip>
+          <enhancement-slot-menu
+            :ref="'enhancementSlotMenu' + index"
+            :buildSlot="buildSlot"
+            :enhancementSlot="enhancementSlot"
+          ></enhancement-slot-menu>
+        </q-btn>
+      </div>
     </div>
   </div>
 </template>
@@ -170,6 +174,10 @@ export default defineComponent({
   -webkit-column-break-inside: avoid;
 }
 
+.build-slot {
+  min-height: 48px;
+}
+
 .build-slot-item {
   padding: 0;
   margin: 0 0 16px 0;
@@ -177,6 +185,7 @@ export default defineComponent({
   border-radius: 28px;
   background-image: linear-gradient(#01579b, #b3e5fc);
   min-height: 28px;
+  width: 100%;
 }
 
 .build-slot-item-section {
@@ -200,7 +209,7 @@ export default defineComponent({
 }
 
 .build-slot-enhancement-slot {
-  /* width: 34px; */
+  width: 24px;
   float: left;
 }
 
@@ -226,12 +235,20 @@ export default defineComponent({
   .build-slot-icon-button {
     display: unset;
   }
+  .build-slot-enhancement-slot {
+    width: 24px;
+  }
 }
 
 @media (min-width: 768px) {
   .build-slot-line-main {
     margin: 2px 0 0 10px;
     font-size: 12px;
+  }
+}
+@media (min-width: 1440px) {
+  .build-slot-enhancement-slot {
+    width: 32px;
   }
 }
 </style>

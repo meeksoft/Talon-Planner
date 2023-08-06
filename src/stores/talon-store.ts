@@ -194,6 +194,7 @@ export const useTalonStore = defineStore('talon', {
         position: 'bottom-right',
         type: type,
         message: message,
+        html: true,
       });
       if (this.showDebugConsoleErrors) {
         switch (type) {
@@ -316,9 +317,10 @@ export const useTalonStore = defineStore('talon', {
       const notif = this.$q.notify({
         type: 'ongoing',
         color: 'pink-8',
-        position: 'bottom-left',
+        position: 'bottom-right',
         caption: '0%',
         message: '',
+        html: true,
       });
       const notifMini = this.$q.notify({
         type: 'ongoing',
@@ -326,6 +328,7 @@ export const useTalonStore = defineStore('talon', {
         position: 'bottom-left',
         caption: '0%',
         message: '',
+        html: true,
       });
 
       // Pools
@@ -334,7 +337,11 @@ export const useTalonStore = defineStore('talon', {
       for (const powerset of this.pools) {
         notif({
           caption: `${((currentStep * 100) / maxSteps).toFixed(0)}%`,
-          message: `Loading Powersets ${powerset.label}`,
+          message: 'Loading Pools',
+        });
+        notifMini({
+          caption: '',
+          message: `${powerset.label}`,
         });
         await this.fetchPowerset(powerset, 1);
         currentStep++;
@@ -350,11 +357,11 @@ export const useTalonStore = defineStore('talon', {
         for (const powerset of archetype.primaryPowersets) {
           notif({
             caption: `${((atCurrentStep * 100) / atMaxSteps).toFixed(0)}%`,
-            message: `Loading Archetypes ${archetype.label}`,
+            message: `Loading ${archetype.label}`,
           });
           notifMini({
             caption: `${((currentStep * 100) / maxSteps).toFixed(0)}%`,
-            message: `Loading Powersets ${powerset.label}`,
+            message: `${powerset.label}`,
           });
           await this.fetchPowerset(powerset, 1);
           currentStep++;
@@ -365,11 +372,11 @@ export const useTalonStore = defineStore('talon', {
         for (const powerset of archetype.secondaryPowersets) {
           notif({
             caption: `${((atCurrentStep * 100) / atMaxSteps).toFixed(0)}%`,
-            message: `Loading Archetypes ${archetype.label}`,
+            message: `Loading ${archetype.label}`,
           });
           notifMini({
             caption: `${((currentStep * 100) / maxSteps).toFixed(0)}%`,
-            message: `Loading Powersets ${powerset.label}`,
+            message: `${powerset.label}`,
           });
           await this.fetchPowerset(powerset, 1);
           currentStep++;
@@ -385,11 +392,11 @@ export const useTalonStore = defineStore('talon', {
         for (const boostSet of boostGroup.boostSets) {
           notif({
             caption: `${((bgCurrentStep * 100) / bgMaxSteps).toFixed(0)}%`,
-            message: `Loading Boost Groups ${boostGroup.label}`,
+            message: `Loading ${boostGroup.label}`,
           });
           notifMini({
             caption: `${((currentStep * 100) / maxSteps).toFixed(0)}%`,
-            message: `Boost Sets ${boostSet.label}`,
+            message: `${boostSet.label}`,
           });
           if (!boostSet.loaded) {
             await this.fetchBoostset(boostSet, boostGroup.value);
@@ -653,7 +660,7 @@ export const useTalonStore = defineStore('talon', {
       // const categoryName = powersetName.split('/')[1].replace(/_/g, '');
 
       if (powerset.loaded) {
-        console.info('Powerset already loaded: ' + powerset.label);
+        // console.info('Powerset already loaded: ' + powerset.label);
         return;
       }
 

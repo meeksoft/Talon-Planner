@@ -236,7 +236,7 @@ export default defineComponent({
 
 @media (min-width: 1024px) {
   .powerset-card-list {
-    max-height: calc(var(--vh, 1vh) * 100 - 187px);
+    max-height: calc(var(--vh, 1vh) * 100 - 170px);
     overflow: auto;
   }
 }
