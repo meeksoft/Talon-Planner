@@ -9,6 +9,8 @@
       active-class="border-accent"
       :active="buildSlot.selected"
       class="build-slot-item"
+      role="region"
+      :aria-label="'Build Slot ' + buildSlot.level"
     >
       <div class="build-slot-item-section">
         <div lines="1" class="build-slot-line-main">
@@ -24,6 +26,7 @@
             :icon="buildSlot.power.icon"
             @click.capture.stop="iconClick()"
             class="build-slot-icon-button"
+            :aria-label="'Build Slot Icon ' + buildSlot.level"
           >
             <q-tooltip>Click - Remove Power</q-tooltip>
           </q-btn>
@@ -47,6 +50,9 @@
           padding="none"
           @click.capture.stop="enClick(index)"
           class="build-slot-enhancement-button"
+          :aria-label="
+            'Build Slot ' + buildSlot.level + ' Enhancement Slot ' + index
+          "
         >
           <q-avatar :size="$q.screen.gt.md ? 'md' : 'sm'">
             <img

@@ -9,11 +9,24 @@
     :group="groupName"
     header-class="bg-primary text-white shadow-2 q-toolbar"
     expand-icon-class="text-white"
+    role="region"
+    aria-label="Build Region"
   >
     <template v-slot:header>
-      <q-toolbar class="bg-primary text-white q-toolbar">
+      <q-toolbar
+        class="bg-primary text-white q-toolbar"
+        role="toolbar"
+        aria-label="Build Toolbar"
+      >
         <q-toolbar-title>Build</q-toolbar-title>
-        <q-btn flat round dense icon="autorenew" @click="newBuildClick()">
+        <q-btn
+          flat
+          round
+          dense
+          icon="autorenew"
+          @click="newBuildClick()"
+          aria-label="New Build"
+        >
           <q-tooltip>New Build</q-tooltip>
         </q-btn>
         <q-btn
@@ -22,13 +35,28 @@
           dense
           icon="file_download"
           @click="exportBuildClick()"
+          aria-label="Export Build"
         >
           <q-tooltip>Export Build</q-tooltip>
         </q-btn>
-        <q-btn flat round dense icon="file_open" @click="openBuildClick()">
+        <q-btn
+          flat
+          round
+          dense
+          icon="file_open"
+          @click="openBuildClick()"
+          aria-label="Open Build"
+        >
           <q-tooltip>Open Build<br />Copy Current or Paste New</q-tooltip>
         </q-btn>
-        <q-btn flat round dense icon="upload_file" @click="uploadBuildClick()">
+        <q-btn
+          flat
+          round
+          dense
+          icon="upload_file"
+          @click="uploadBuildClick()"
+          aria-label="Upload Build"
+        >
           <q-tooltip>Upload Build from File</q-tooltip>
         </q-btn>
       </q-toolbar>

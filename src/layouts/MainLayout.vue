@@ -28,16 +28,30 @@
           <q-tooltip>Dummy Menu</q-tooltip>
         </span>
         <q-space />
-        <q-btn
-          flat
-          round
-          dense
-          :icon="store.isFetching ? 'cloud_sync' : 'cloud_download'"
-          @click="downloadDatabase()"
-          :disable="store.isFetching"
-        >
-          <q-tooltip>Download Entire Database into App</q-tooltip>
-        </q-btn>
+        <span>
+          <q-btn
+            flat
+            round
+            dense
+            :icon="$q.platform.is.mobile ? 'install_mobile' : 'install_desktop'"
+            @click="installPWA()"
+            :disable="deferredPrompt == undefined"
+          >
+            <q-tooltip>Install PWA</q-tooltip>
+          </q-btn>
+        </span>
+        <span>
+          <q-btn
+            flat
+            round
+            dense
+            :icon="store.isFetching ? 'cloud_sync' : 'cloud_download'"
+            @click="downloadDatabase()"
+            :disable="store.isFetching"
+          >
+            <q-tooltip>Download Entire Database into App</q-tooltip>
+          </q-btn>
+        </span>
         <span>
           <q-toggle
             v-model="debugToggleModel"
@@ -83,19 +97,20 @@
 import { defineComponent, ref } from 'vue';
 import { useTalonStore } from 'stores/talon-store';
 import EssentialLink from 'components/EssentialLink.vue';
+import { BeforeInstallPromptEvent } from 'vue-pwa-install';
 
 const linksList = [
   {
     title: 'Docs',
-    caption: 'quasar.dev',
+    caption: 'Talon Site',
     icon: 'school',
-    link: 'https://quasar.dev',
+    link: 'https://meeksoft.com/talon',
   },
   {
     title: 'Github',
-    caption: 'github.com/quasarframework',
+    caption: 'github.com/meeksoft/Talon-Planner',
     icon: 'code',
-    link: 'https://github.com/quasarframework',
+    link: 'https://github.com/meeksoft/Talon-Planner',
   },
   {
     title: 'Homecoming Wiki',
@@ -129,13 +144,13 @@ const linksList = [
   },
 ];
 
+let deferredPrompt: BeforeInstallPromptEvent;
+
 export default defineComponent({
   name: 'MainLayout',
-
   components: {
     EssentialLink,
   },
-
   setup() {
     const store = useTalonStore();
     const leftDrawerOpen = ref(false);
@@ -149,7 +164,29 @@ export default defineComponent({
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
       debugToggleModel,
+      deferredPrompt,
     };
+  },
+  created() {
+    window.addEventListener('canInstall', (e) => {
+      console.log('App can be installed');
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      this.deferredPrompt = e as BeforeInstallPromptEvent;
+    });
+  },
+  mounted() {
+    window.addEventListener('appinstalled', (e) => {
+      console.log('.App already installed');
+    });
+    window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('App can be prompted for install');
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      this.deferredPrompt = e as BeforeInstallPromptEvent;
+    });
   },
   computed: {
     getGitHash() {
@@ -159,6 +196,21 @@ export default defineComponent({
   methods: {
     async downloadDatabase() {
       this.store.fetchDatabaseAgain();
+    },
+    installPWA() {
+      if (this.deferredPrompt != undefined) {
+        // Show the install prompt
+        this.deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        this.deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          } else {
+            console.log('User dismissed the install prompt');
+          }
+          //this.deferredPrompt = null;
+        });
+      }
     },
   },
 });

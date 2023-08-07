@@ -47,6 +47,14 @@
       "runtimeExecutable": "yarn",
       "cwd": "${workspaceFolder}",
       "runtimeArgs": ["dev:pwa"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "DEV SPA",
+      "runtimeExecutable": "yarn",
+      "cwd": "${workspaceFolder}",
+      "runtimeArgs": ["dev"]
     }
   ]
 }

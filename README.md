@@ -37,6 +37,7 @@ Non City of Heroes related Links.
 
 - [Quasar](https://quasar.dev)
 - [Tauri](https://tauri.app)
+- [Vue PWA Install](https://github.com/Bartozzz/vue-pwa-install)
 
 ## Updating
 
@@ -44,6 +45,7 @@ Non City of Heroes related Links.
 
 We download the zip file from [City of Data 2.0](https://cod.uberguy.net/)
 and unzip it into the `public\json\homecoming` folder.
+We then remove files we do not need.
 
 ### Images
 
@@ -100,10 +102,16 @@ If for some reason you need to run a build on LOCAL. AKA view a distribution.
 
 _You may need to run `tauri dev` before launching Debug_
 
-Builds Quasar SPA about 2mins.
-Non-installer with debug about 20mins.
-Non-installer w/o debug about 22mins.
-Installer about XXmins.
+July 27, 2023 times:
+
+- Builds Quasar SPA about 2mins.
+- Non-installer with debug about 20mins.
+- Non-installer w/o debug about 22mins.
+- Installer about 20mins.
+
+Aug 6, 2023 times (reduced amount of json files):
+
+- All times rougly 6 mins.
 
 ```sh
 # Use LLD link built into cargo.  May not work on macOS.
@@ -123,7 +131,7 @@ Builds Quasar SSG about 22mins.
 
 This _needs_ to be worked on, seriously.
 Load speed, caching, number of requests, build speed, etc.
-Should we use a database.
+Should we use a database?
 
 July 27,2023 big issues:
 

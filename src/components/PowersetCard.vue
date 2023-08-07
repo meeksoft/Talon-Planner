@@ -16,10 +16,14 @@
       expand-icon-toggle
       :icon="powerset ? powerset.icon : powersetModel.icon"
       :label="powerset ? powerset.label : powersetModel.label"
-      header-class="bg-light-blue text-white"
+      header-class="bg-light-blue-10 text-white"
       expand-icon-class="text-white"
       class="powerset-card-expansion-item"
       active-class="powerset-card-expansion-item-active"
+      role="region"
+      :aria-label="
+        'View ' + (powerset ? powerset.label : powersetModel.label) + ' Powers'
+      "
     >
       <template v-slot:header v-if="!powerset">
         <q-select
@@ -31,6 +35,8 @@
           :options="powersets"
           @update:model-value="(val) => updatePowerset(val)"
           class="powerset-card-select text-white"
+          role="select"
+          :aria-label="'Select ' + powersetModel.label + ' Powers'"
         >
           <template v-slot:no-option>
             <q-item>

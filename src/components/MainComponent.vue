@@ -6,6 +6,7 @@
       color="accent"
       size="10px"
       skip-hijack
+      aria-label="Progress Bar"
     />
     <div class="col-12">
       <div class="row">
@@ -19,9 +20,15 @@
             group="firstGroup"
             header-class="bg-primary text-white shadow-2 q-toolbar"
             expand-icon-class="text-white"
+            role="region"
+            aria-label="Powerset Selection"
           >
             <template v-slot:header>
-              <q-toolbar class="bg-primary text-white q-toolbar">
+              <q-toolbar
+                class="bg-primary text-white q-toolbar"
+                role="toolbar"
+                aria-label="Select Toolbar"
+              >
                 <q-select
                   :key="archetypeModel"
                   ref="archetypeSelect"
@@ -31,6 +38,8 @@
                   v-model="store.archetypeModel"
                   :options="archetypeOptions"
                   @update:model-value="(value) => updatePowersets(value)"
+                  role="select"
+                  aria-label="Select Archetype"
                 >
                   <template v-slot:no-option>
                     <q-item>
@@ -69,6 +78,8 @@
                   :options="primaryOptions"
                   color="primary"
                   @update:model-value="(val) => updatePrimary(val)"
+                  role="select"
+                  aria-label="Select Primary"
                 >
                   <template v-slot:no-option>
                     <q-item>
@@ -106,6 +117,8 @@
                   v-model="store.secondaryModel"
                   :options="secondaryOptions"
                   @update:model-value="(val) => updateSecondary(val)"
+                  role="select"
+                  aria-label="Select Secondary"
                 >
                   <template v-slot:no-option>
                     <q-item>
@@ -143,6 +156,8 @@
                   v-model="store.epicModel"
                   :options="epicOptions"
                   @update:model-value="(val) => updateEpic(val)"
+                  role="select"
+                  aria-label="Select Epic"
                 >
                   <template v-slot:no-option>
                     <q-item>
@@ -178,6 +193,8 @@
                   hide-dropdown-icon
                   v-model="store.originModel"
                   :options="store.originOptions"
+                  role="select"
+                  aria-label="Select Origin"
                 >
                   <template v-slot:no-option>
                     <q-item>
@@ -213,6 +230,8 @@
                   hide-dropdown-icon
                   v-model="store.alignmentModel"
                   :options="store.alignmentOptions"
+                  role="select"
+                  aria-label="Select Alignment"
                 >
                   <template v-slot:no-option>
                     <q-item>

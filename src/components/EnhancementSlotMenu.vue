@@ -21,6 +21,7 @@
               :icon="enh.icon"
               style="float: left"
               @click.capture.stop="addEnhancement(enh)"
+              :aria-label="boost.label"
             >
               <q-tooltip><div v-html="this.boostToolTip(enh)"></div></q-tooltip
             ></q-btn>
@@ -33,13 +34,25 @@
       </q-card-section>
       <q-separator dark />
       <q-card-actions>
-        <q-btn flat icon="delete_forever" @click.capture.stop="removeClick()"
+        <q-btn
+          flat
+          icon="delete_forever"
+          @click.capture.stop="removeClick()"
+          aria-label="Remove Enhancement"
           >Remove</q-btn
         >
-        <q-btn flat icon="delete" @click.capture.stop="clearClick()"
+        <q-btn
+          flat
+          icon="delete"
+          @click.capture.stop="clearClick()"
+          aria-label="Clear Enhancement"
           >Clear</q-btn
         >
-        <q-btn flat icon="delete_sweep" @click.capture.stop="removeAllClick()"
+        <q-btn
+          flat
+          icon="delete_sweep"
+          @click.capture.stop="removeAllClick()"
+          aria-label="Remove all Enhancements"
           >Remove<br />All</q-btn
         >
       </q-card-actions>

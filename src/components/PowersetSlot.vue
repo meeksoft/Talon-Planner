@@ -22,6 +22,7 @@
         :icon="power.icon"
         style="left: 10px"
         @click.capture.stop="iconClick()"
+        :aria-label="'Power ' + power.label"
       >
         <!-- <q-tooltip>{{ getPowerTooltip() }}</q-tooltip> -->
       </q-btn>
@@ -41,6 +42,7 @@
           color="primary"
           :icon="getBoostIcon(index)"
           :size="enhancementSlotIconSize"
+          :aria-label="boost.label"
         >
           <q-tooltip>{{ boost.label }}</q-tooltip>
         </q-btn>
