@@ -37,7 +37,7 @@ export const useTalonStore = defineStore('talon', {
     uiSelectedPower: EmptyPower, //MouseEnter Power
     uiSelectedBuildSlot: EmptyBuildSlot, //Selected Build Slot.
 
-    fetchLoadType: 0, //-1 is Don't load, 0 is don't await, 1 is await.
+    fetchLoadType: -1, //-1 is Don't load, 0 is don't await, 1 is await.
     isFetching: false,
 
     fileTypeOptions: [
@@ -252,6 +252,7 @@ export const useTalonStore = defineStore('talon', {
         message: 'Loading Boosts.',
       });
       await this.fetchBoosts();
+
       notif({
         caption: `${(100 / steps).toFixed(0)}%`,
         message: 'Loading Boost sets.',
@@ -268,7 +269,7 @@ export const useTalonStore = defineStore('talon', {
         caption: `${(300 / steps).toFixed(0)}%`,
         message: 'Loading Power sets.',
       });
-      await this.fetchPowersets();
+      await this.fetchPowersets(this.fetchLoadType);
 
       notif({
         caption: `${(400 / steps).toFixed(0)}%`,
@@ -583,7 +584,7 @@ export const useTalonStore = defineStore('talon', {
           });
       }
     },
-    async fetchPowersets() {
+    async fetchPowersets(fetchLoadType = 1) {
       /* Load Powerset */
       for (const archetype of this.archetypes) {
         /* Loop once for Primary, once for Secondary */
@@ -648,10 +649,30 @@ export const useTalonStore = defineStore('talon', {
 
         //Load Powers
         for (const powerset of archetype.primaryPowersets) {
-          await this.fetchPowerset(powerset, this.fetchLoadType);
+          switch (fetchLoadType) {
+            case 0:
+              this.fetchPowerset(powerset, this.fetchLoadType);
+              break;
+            case 1:
+              await this.fetchPowerset(powerset, this.fetchLoadType);
+              break;
+
+            default:
+              break;
+          }
         }
         for (const powerset of archetype.secondaryPowersets) {
-          await this.fetchPowerset(powerset, this.fetchLoadType);
+          switch (fetchLoadType) {
+            case 0:
+              this.fetchPowerset(powerset, this.fetchLoadType);
+              break;
+            case 1:
+              await this.fetchPowerset(powerset, this.fetchLoadType);
+              break;
+
+            default:
+              break;
+          }
         }
       }
     },
@@ -779,7 +800,7 @@ export const useTalonStore = defineStore('talon', {
       }
 
       for (const powerset of epics) {
-        await this.fetchPowerset(powerset);
+        await this.fetchPowerset(powerset, 1);
       }
 
       /* Match Epic to Archetype based on first power's requirements */

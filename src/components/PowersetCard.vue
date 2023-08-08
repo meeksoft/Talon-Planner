@@ -191,7 +191,7 @@ export default defineComponent({
     },
     async updatePowerset(powerset) {
       console.log('updatePowerset');
-      await this.store.fetchPowerset(powerset);
+      await this.store.fetchPowerset(powerset, 1);
       this.powers = powerset.powers;
       this.powersetPowersModel = []; //Trigger refresh
     },

@@ -465,21 +465,21 @@ export default defineComponent({
     primaryModel: {
       deep: false,
       handler: async function () {
-        await this.store.fetchPowerset(this.store.primaryModel);
+        await this.store.fetchPowerset(this.store.primaryModel, 1);
         this.updatePrimary(this.store.primaryModel);
       },
     },
     secondaryModel: {
       deep: false,
       handler: async function () {
-        await this.store.fetchPowerset(this.store.secondaryModel);
+        await this.store.fetchPowerset(this.store.secondaryModel, 1);
         this.updateSecondary(this.store.secondaryModel);
       },
     },
     epicModel: {
       deep: false,
       handler: async function () {
-        await this.store.fetchPowerset(this.store.epicModel);
+        await this.store.fetchPowerset(this.store.epicModel, 1);
         this.updateEpic(this.store.epicModel);
       },
     },
