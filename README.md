@@ -2,6 +2,17 @@
 
 City of Heroes Planner
 
+This was never meant to replace any existing planner.
+This was to hopefully take the next step in "planners," being multi-platform.
+A Proof-concept, that I wanted to try.
+I am thankful and still use other planners; like Mids.
+This community is awesome.
+
+As a life long fan, will always be grateful to the community.
+I think everyone will agree 100% how amazng the community is.
+I enjoy making project like this, but am always unable to commit long term.
+That being said, because the community has given so much, I want to give (however small) too.
+
 [User Manual (Short Format)](/USERMANUAL.MD)
 
 ## Purpose
@@ -9,18 +20,17 @@ City of Heroes Planner
 - Why the name? I'm a Trick Arrow fan since the very beginning.
   And not because it's arrows. But because I enjoy debuffing and busy-ness.
 - It's fun learning and creating new things.
-- To get the ball moving on updating a planner.
-  To hopefully demonstrate how much easier it is.
+- To get the ball moving on "modernizing" a planner. AKA, cross platform.
 - We owe a big thanks to [City of Data 2.0](https://cod.uberguy.net/).
   For we use their json.
-- This has been architected and thought-out as far as a quick way
-  to demonstrate, and a full foundation.
+- Because I focused on a quick way to demo. This has not been architected and thought-out fully. There is no good full foundation.
 - Wanted something that could handle various platforms, is responsive, and perhaps, become a PWA for [offline] mobile.
-- I am unable to commit long term to this.
 
 Once AGAIN...
 This was never meant to replace any existing planner.
-This was to hopefully take the next step in "planners," being multi-platform. I am thankful and still use other planners. This community is awesome.
+This was to hopefully take the next step in "planners," being multi-platform.
+I am thankful and still use other planners; like Mids.
+This community is awesome.
 
 ## Breakin Eggs
 
@@ -75,19 +85,21 @@ _Warnnig_ You may notice in some dev environments, that Workbox will not load yo
 - `dev:pwa`
 - `build:pwa`
 
-Builds PWA about 10mins.
+Builds PWA about 6mins.
 
-#### PWA SSL
+#### LOCAL PWA SSL
 
 We have `https` configured in the `quasar.config.js` for `devServer`.
 We use localhost.pfx (it has the private key included.)
+This is located in the `certs` folder.
+If there are issues, please disable https in the config file.
 
 ### LOCAL Debug
 
 Two step process in VSCode. This is allow us to have break points:
 
-1. Run `quasar dev`: This should default and run localhost:9000. A browser will open, you can close it.
-2. Run VSCode's debugger setting `Quasar App: chrome`: This should open a browser that connects to localhost:9000.
+1. Run `quasar dev`: This should default and run localhost:3223.
+2. Run VSCode's debugger setting `Quasar App: chrome`: This should open a browser that connects to localhost:3223.
 3. Add breakpoints, and debug. Intially breakpoint may not appear red.
 
 ### LOCAL Serve
@@ -111,7 +123,7 @@ July 27, 2023 times:
 
 Aug 6, 2023 times (reduced amount of json files):
 
-- All times rougly 6 mins.
+- All times rougly 6mins.
 
 ```sh
 # Use LLD link built into cargo.  May not work on macOS.
@@ -126,6 +138,8 @@ Using [Quasar v2 SSG App Extension](https://github.com/freddy38510/quasar-app-ex
 Issues with `build:ssg` when `quasar.config.js` `pwa` is **true**.
 
 Builds Quasar SSG about 22mins.
+
+We haven't been directly building with SSG, instead building PWA.
 
 ## Optimization
 
