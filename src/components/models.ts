@@ -95,9 +95,10 @@ export const EmptyBuildSlot = new BuildSlot();
 
 export interface IBoost {
   label: string;
-  value: string;
+  value: string; //Uppercase. Crafted_Absolute_Amazement_A
   group: string; //generic, category, or boost set name
   icon: string;
+  catalyzesTo: string;
   aspects: Array<string>;
 }
 
@@ -106,6 +107,7 @@ export class Boost implements IBoost {
   value = '';
   group = '';
   icon = '';
+  catalyzesTo = '';
   aspects = [];
 }
 

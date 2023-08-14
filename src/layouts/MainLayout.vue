@@ -11,7 +11,7 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Talon Planer </q-toolbar-title>
+        <q-toolbar-title> Talon Planner </q-toolbar-title>
 
         <div>
           Quasar v{{ $q.version }}

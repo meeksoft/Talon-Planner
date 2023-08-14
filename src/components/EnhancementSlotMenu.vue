@@ -21,7 +21,7 @@
               :icon="enh.icon"
               style="float: left"
               @click.capture.stop="addEnhancement(enh)"
-              :aria-label="boost.label"
+              :aria-label="this.boostToolTip(enh)"
             >
               <q-tooltip><div v-html="this.boostToolTip(enh)"></div></q-tooltip
             ></q-btn>
@@ -50,10 +50,17 @@
         >
         <q-btn
           flat
-          icon="delete_sweep"
+          icon="restore_from_trash"
           @click.capture.stop="removeAllClick()"
           aria-label="Remove all Enhancements"
-          >Remove<br />All</q-btn
+          >Remove All</q-btn
+        >
+        <q-btn
+          flat
+          icon="delete_sweep"
+          @click.capture.stop="clearAllClick()"
+          aria-label="Clear all Enhancements"
+          >Clear All</q-btn
         >
       </q-card-actions>
     </q-card>
@@ -161,6 +168,10 @@ export default {
     removeAllClick() {
       this.hide();
       this.store.emptyBuildSlot(this.buildSlot, false);
+    },
+    clearAllClick() {
+      this.hide();
+      this.store.clearAllBuildSlotEnhancements(this.buildSlot);
     },
   },
 };

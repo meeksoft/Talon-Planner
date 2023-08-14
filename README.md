@@ -94,6 +94,9 @@ We use localhost.pfx (it has the private key included.)
 This is located in the `certs` folder.
 If there are issues, please disable https in the config file.
 
+FYI, PWA is on port 3225. And you will have to enter the https.
+[https://localhost:3225/](https://localhost:3225/)
+
 ### LOCAL Debug
 
 Two step process in VSCode. This is allow us to have break points:

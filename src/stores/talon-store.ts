@@ -536,11 +536,25 @@ export const useTalonStore = defineStore('talon', {
           /* Load each boost */
           const numOfBoosts = res.data.boost_lists.length;
           for (let i = 0; i < numOfBoosts; i++) {
+            const longName = res.data.boost_lists[i][0];
             const boost = new Boost();
             boost.label = res.data.computed.boosts[i][0];
+            boost.value = longName.split(/\./).pop();
             boost.group = groupName;
             boost.icon = boostSet.icon;
-            boost.aspects = res.data.computed.boost_infos[i * 2];
+            boost.aspects =
+              res.data.computed.boost_infos[boost.value.toLowerCase()].aspects;
+
+            if (
+              res.data.computed.boost_infos[boost.value.toLowerCase()]
+                .catalyzes_to != null
+            ) {
+              boost.catalyzesTo =
+                res.data.computed.boost_infos[
+                  boost.value.toLowerCase()
+                ].catalyzes_to[1];
+            }
+
             boostSet.boosts.push(boost);
           }
 
@@ -744,36 +758,31 @@ export const useTalonStore = defineStore('talon', {
         powerName +
         '.json'
       ).toLowerCase();
-      await api
-        .get(powerPath)
-        .then((res) => {
-          power.icon =
-            'img:/icon/powers/' +
-            // power.powerset.powerFolder.replace(/_/g, '') +
-            // '/' +
-            res.data.icon;
-          power.icon = power.icon.toLowerCase();
-          power.description = res.data.display_help;
-          power.requires = res.data.requires;
-          power.boostsAllowed = res.data.boosts_allowed;
-          power.allowedBoostsetCats = res.data.allowed_boostset_cats;
+      const res = await api.get(powerPath);
 
-          power.boosts.length = 0;
-          power.boostsAllowed.forEach((name) => {
-            const boost = this.getBoost(name);
-            if (boost == null) return false;
-            power.boosts.push(boost);
-          });
-          power.allowedBoostsetCats.forEach((name) => {
-            const boost = this.getBoost(name);
-            if (boost == null) return false;
-            power.boosts.push(boost);
-          });
-          power.loaded = true;
-        })
-        .catch((errors) => {
-          console.log(errors);
-        });
+      power.icon =
+        'img:/icon/powers/' +
+        // power.powerset.powerFolder.replace(/_/g, '') +
+        // '/' +
+        res.data.icon;
+      power.icon = power.icon.toLowerCase();
+      power.description = res.data.display_help;
+      power.requires = res.data.requires;
+      power.boostsAllowed = res.data.boosts_allowed;
+      power.allowedBoostsetCats = res.data.allowed_boostset_cats;
+
+      power.boosts.length = 0;
+      for (const name of power.boostsAllowed) {
+        const boost = await this.getBoost(name);
+        if (boost == null) return false;
+        power.boosts.push(boost);
+      }
+      for (const name of power.allowedBoostsetCats) {
+        const boost = await this.getBoost(name);
+        if (boost == null) return false;
+        power.boosts.push(boost);
+      }
+      power.loaded = true;
     },
     async fetchEpics() {
       const epics = new Array<Powerset>();
@@ -1009,11 +1018,18 @@ export const useTalonStore = defineStore('talon', {
         buildSlot.enhancementSlots[0].boost = EmptyBoost;
 
         for (let i = buildSlot.enhancementSlots.length - 1; i > 0; i--) {
+          if (buildSlot.enhancementSlots[i] == undefined) continue;
           this.removeEnhancementSlotFrom(
             buildSlot,
             buildSlot.enhancementSlots[i]
           );
         }
+      }
+    },
+    clearAllBuildSlotEnhancements(buildSlot: BuildSlot) {
+      for (let i = buildSlot.enhancementSlots.length - 1; i > 0; i--) {
+        if (buildSlot.enhancementSlots[i] == undefined) continue;
+        this.clearEnhancementSlotFrom(buildSlot, buildSlot.enhancementSlots[i]);
       }
     },
     addPowerToBuild(selectedPower: Power): BuildSlot | null {
@@ -1159,28 +1175,106 @@ export const useTalonStore = defineStore('talon', {
       return null;
     },
     // TODO: Add more Boost Types
-    getBoost(name: string): Boost | null {
+    // Adjust for outside this database. Ex: Importing from Mids.
+    async getBoost(name: string, doAdjust = false): Promise<Boost | null> {
+      const originalName = name;
+
       // BUG: Hack to support unsupported enhancements.
       name = name.replace(/Invention: /g, '');
       let foundBoost = null;
 
-      this.boostGroups.forEach((boostGroup) => {
-        if (boostGroup.label == name) {
-          foundBoost = boostGroup.boost;
-          return false;
+      //Determine if we are looking for a boostgroup or a boostset of that group.
+      let pos = name.indexOf(':');
+      if (pos >= 0) {
+        //Adjust
+        if (doAdjust) {
+          name = name.replace('Convalesence', 'Convalescence'); //Mid's for Numina Convalescence
+          name = name.replace('Accuracy +6%', '+ToHit'); //Mid's Kismet.
+          name = name.replace(
+            'TP Protection +3% Def (All)',
+            'Teleportation Protection, +Def(All)'
+          ); //Mid's Gladiator Armor
+          pos = name.indexOf(':');
         }
-      });
+
+        const posBoostName = name.substring(0, pos); //Omit the colon
+
+        for (const boostGroup of this.boostGroups) {
+          for (const boostSet of boostGroup.boostSets) {
+            if (boostSet.label.indexOf(posBoostName) >= 0) {
+              if (!boostSet.loaded) {
+                await this.fetchBoostset(boostSet, boostGroup.value);
+              }
+              for (const boost of boostSet.boosts) {
+                if (
+                  boost.label.indexOf(name) >= 0 ||
+                  boost.catalyzesTo.indexOf(name) >= 0
+                ) {
+                  foundBoost = boost;
+                  return foundBoost;
+                } else {
+                  if (doAdjust) {
+                    // Our JSON has effects in alpha order.  Other apps may not.
+                    const posEffectsName = name
+                      .substring(pos + 1)
+                      .replace(/\s+/g, ''); //Smash.  No spaces.
+                    const effects = posEffectsName.split('/');
+                    if (effects.length > 0) {
+                      const smashedLabel = boost.label.replace(/\s+/g, ''); //Smash.  No spaces.
+                      const smashedCat = boost.catalyzesTo.replace(/\s+/g, ''); //Smash.  No spaces.
+                      let count = 0;
+                      for (const eff of effects) {
+                        let effName = eff;
+                        if (eff.indexOf('Chance') >= 0) {
+                          effName = 'Chance';
+                        } else {
+                          effName = effName.replace('Increased', ''); //'+'
+                          effName = effName.replace('RechargeTime', 'Recharge');
+                          effName = effName.replace('PBAoE', '');
+                          effName = effName.replace(
+                            /\(?\+?\d+(?:\.\d+)? ?%\)? */g,
+                            ''
+                          ); //Remove %
+                          effName = effName.replace(/ *\([^)]*\) */g, ''); //Remove ()
+                        }
+                        if (
+                          smashedLabel.indexOf(effName) >= 0 ||
+                          smashedCat.indexOf(effName) >= 0
+                        )
+                          count++;
+                      }
+                      if (count == effects.length) {
+                        foundBoost = boost;
+                        return foundBoost;
+                      }
+                    }
+                  } //End of Do Adjust
+                }
+              }
+              break;
+            }
+          }
+        }
+      } else {
+        this.boostGroups.forEach((boostGroup) => {
+          if (boostGroup.label.indexOf(name) >= 0) {
+            foundBoost = boostGroup.boost;
+            return false;
+          }
+        });
+      }
+
       if (foundBoost != null) return foundBoost;
 
       this.genericBoosts.forEach((boost) => {
-        if (boost.value == name || boost.label == name) {
+        if (boost.value.indexOf(name) >= 0 || boost.label.indexOf(name) >= 0) {
           foundBoost = boost;
           return false;
         }
       });
       if (foundBoost != null) return foundBoost;
 
-      console.log('getBoost: Not found: ' + name);
+      console.log('getBoost: Not found: ' + originalName + '\n\r' + name);
       return foundBoost;
     },
     // TODO: Get Archetype by name or value, etc.
@@ -1304,8 +1398,10 @@ export const useTalonStore = defineStore('talon', {
 
       return null;
     },
-    loadMBDObject(mbdObject: MBDObject) {
+    async loadMBDObject(mbdObject: MBDObject) {
       console.log(mbdObject);
+
+      this.emptyBuild();
 
       /* Set UI Origin */
       const origin = this.getOrigin(mbdObject.Origin);
@@ -1345,6 +1441,7 @@ export const useTalonStore = defineStore('talon', {
           if (powerset.value == powersetValue) {
             foundIt = true;
             this.primaryModel = powerset;
+
             break;
           }
         }
@@ -1396,6 +1493,17 @@ export const useTalonStore = defineStore('talon', {
           }
         }
         if (foundIt) continue;
+      }
+
+      /* Wait for powersets to load */
+      if (!this.primaryModel.loaded) {
+        await this.fetchPowerset(this.primaryModel);
+      }
+      if (!this.secondaryModel.loaded) {
+        await this.fetchPowerset(this.secondaryModel);
+      }
+      if (!this.epicModel.loaded) {
+        await this.fetchPowerset(this.epicModel);
       }
 
       /* Assign Powers to Build Slots */
@@ -1465,7 +1573,7 @@ export const useTalonStore = defineStore('talon', {
           if (iEnhancement == null) continue;
 
           const enhancementName = iEnhancement.Enhancement;
-          const enhancement = this.getBoost(enhancementName);
+          const enhancement = await this.getBoost(enhancementName, true);
           if (enhancement == null) {
             this.notify('negative', 'Unknown Enhancement ' + enhancementName);
             continue;
